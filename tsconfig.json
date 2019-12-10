@@ -25,5 +25,7 @@
         "paths": {
             "utils/*": ["src/*"]
         }
-    }
+    },
+    "include": ["src", "typings", "test", "build"],
+    "exclude": ["node_modules", "dist"]
 }

@@ -1,0 +1,10 @@
+{
+    "extends": "./tsconfig.json",
+    "compilerOptions": {
+        "inlineSourceMap": true,
+        "module": "commonjs",
+        "target": "esnext"
+    },
+    "include": ["src", "typings", "test"],
+    "exclude": ["node_modules", "dist", "build"]
+}
