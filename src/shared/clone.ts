@@ -53,7 +53,7 @@ export function clone<T>(data: T, check = true): T {
     }
     // 数组，深度复制
     else if (isArray(data)) {
-        return data.map((n, i) => clone(n)) as any;
+        return data.map((n) => clone(n, false)) as any;
     }
     // 其余对象
     else {

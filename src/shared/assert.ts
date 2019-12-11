@@ -135,7 +135,6 @@ export function isElement(x: any): x is HTMLElement {
     return (/^\[object (HTML|SVG)([a-zA-Z]+)?Element\]$/.test(_toString.call(x) as string));
 }
 
-
 /**
  * 断言：输入是否是基础类型
  *
