@@ -50,11 +50,11 @@ export async function readdirs(base: string) {
 export async function fileSize(base: string) {
     const fileStat = await stat(base);
 
-    if (!fileStat.isDirectory()) {
-        return fileStat.size;
+    if (fileStat.isDirectory()) {
+        return await folderSize(base);
     }
     else {
-        return await folderSize(base);
+        return fileStat.size;
     }
 }
 
@@ -62,7 +62,7 @@ export async function fileSize(base: string) {
 export async function removeFile(base: string) {
     const fileStat = await stat(base);
 
-    if (!fileStat.isDirectory()) {
+    if (fileStat.isDirectory()) {
         await filesOperation(base, (file) => remove(file));
     }
     else {
