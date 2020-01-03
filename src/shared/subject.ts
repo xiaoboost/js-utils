@@ -124,7 +124,7 @@ export class Watcher<T> extends Subject<T> {
             const last = this._data;
 
             this._data = val;
-            this.notify(last, val);
+            this.notify(val, last);
         }
     }
 
@@ -135,10 +135,10 @@ export class Watcher<T> extends Subject<T> {
 
     /** 只监听一次变化 */
     once() {
-        return new Promise<T>((resolve) => {
+        return new Promise<ReadonlyObject<T>>((resolve) => {
             const callback = (val: T) => {
                 this.unObserve(callback);
-                resolve(val);
+                resolve(val as ReadonlyObject<T>);
             };
 
             this.observe(callback);
@@ -152,15 +152,21 @@ export class Watcher<T> extends Subject<T> {
             return Promise.resolve(this.data);
         }
 
-        return new Promise<T>((resolve) => {
+        return new Promise<ReadonlyObject<T>>((resolve) => {
             const callback = (item: T) => {
                 if (func(item)) {
                     this.unObserve(callback);
-                    resolve(item);
+                    resolve(item as ReadonlyObject<T>);
                 }
             };
 
             this.observe(callback);
         });
+    }
+    /** 扩展并生成新的监控器 */
+    computed<U>(cb: (val: T) => U): Watcher<U> {
+        const watcher = new Watcher(cb(this._data));
+        this.observe((val) => (watcher.data = cb(val) as any));
+        return watcher;
     }
 }
