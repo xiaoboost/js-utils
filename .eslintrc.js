@@ -88,8 +88,8 @@ module.exports =  {
         'no-caller': 'error',
         // 禁止使用类似 eval() 的方法
         'no-implied-eval': 'error',
-        // 警告使用未声明的变量
-        'no-undef': 'warn',
+        // 和 ts 的同名规则冲突，忽略
+        'no-undef': 'off',
         // 禁止将 undefined 作为标识符
         'no-undefined': 'off',
         // 除了函数之外，禁止在定义之前使用变量
