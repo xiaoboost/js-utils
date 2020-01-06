@@ -1,6 +1,6 @@
 /** 上次用于记录的时间戳 */
 let lastTime = new Date().getTime();
-/** 相同时间戳的下表 */
+/** 相同时间戳的下标 */
 let lastIndex = 0;
 
 /** 生成唯一编号 */
