@@ -1,6 +1,6 @@
 import useForceUpdate from './use-force-update';
 
-import { Watcher } from 'utils/shared';
+import { Watcher } from '../shared/subject';
 import { useRef, useEffect } from 'react';
 
 export default function useWatcher<T>(watcher: Watcher<T>) {
@@ -12,10 +12,14 @@ export default function useWatcher<T>(watcher: Watcher<T>) {
         update();
     }
 
+    function setStatus(val: T) {
+        watcher.data = val as any;
+    }
+
     useEffect(() => {
         watcher.observe(handleStatusChange);
         return () => watcher.unObserve(handleStatusChange);
     }, []);
 
-    return [state.current, handleStatusChange] as const;
+    return [state.current, setStatus] as const;
 }
