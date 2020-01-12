@@ -16,7 +16,8 @@ report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 .rts2_cache_umd/
 
 # vscode config
-.vscode
+.vscode/
+!src/.vscode/
 
 # unit test cache
 test/coverage/
