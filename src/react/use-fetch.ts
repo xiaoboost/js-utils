@@ -1,6 +1,6 @@
 import { default as axios, AxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { isArray, isBoolean, isUndef } from '../shared/assert';
 
 // TODO: 基础连接
@@ -79,6 +79,11 @@ interface UseFetchMethod {
     <T = any, P extends object = Record<string, any>>(url: string, params: P, depend: any[], immediate: boolean): FetchData<T>;
 }
 
+interface PromiseSwitch {
+    resolve(arg: any): void;
+    reject(arg: any): void;
+}
+
 function standard(
     url: string,
     params?: Record<string, any> | any[] | boolean,
@@ -128,48 +133,77 @@ export function useFetch<T = any>(params: AxiosRequestConfig, depend: any[] = []
     const [error, setError] = useState<null | ResError>(null);
     const [allow, setAllow] = useState(immediate);
 
+    /** 外部 promise 开关 */
+    const { current: promise } = useRef<PromiseSwitch>({
+        resolve: () => void 0,
+        reject: () => void 0,
+    });
+
     // 依赖带上“允许获取”标志位
     const depends = depend.concat([loading, allow]);
 
-    function reFetch() {
-        if (!allow) {
-            setAllow(true);
-        }
-
+    /** 重置状态 */
+    function resetState() {
+        setAllow(true);
         setLoading(true);
         setResult(null);
         setError(null);
     }
 
-    useEffect(() => {
-        if (!allow || !loading) {
-            return;
-        }
-
+    /** 获取数据 */
+    function fetch() {
         axios(params)
             .then(({ data }: AxiosResponse<Ajax<T>>) => {
                 setLoading(false);
 
                 if (data.code === 200) {
                     setResult(data.data);
+                    promise.resolve(data.data);
                 }
                 else {
-                    setError({
+                    const err = {
                         code: data.code,
                         message: data.message,
-                    });
+                    };
+
+                    promise.reject(err);
+
+                    setError(err);
                 }
             })
             .catch((error: AxiosError) => {
-                setLoading(false);
-
-                setError({
+                const err = {
                     code: Number(error.code || 0),
                     message: error.message,
-                });
+                };
+
+                promise.reject(err);
+
+                setError(err);
+                setLoading(false);
 
                 return error;
             });
+    }
+
+    /**
+     * 重新获取数据
+     *  - 这里并不会直接调用`fetch`函数，而是通过变更`loading`状态触发`useEffect`来实现的，
+     *    这么做主要是为了保证是最后才触发调用，确保传进来的`params`是最新的值，而不是旧的值
+     */
+    function reFetch(): Promise<T> {
+        resetState();
+
+        return new Promise((resolve, reject) => {
+            promise.reject = reject;
+            promise.resolve = resolve;
+        });
+    }
+
+    useEffect(() => {
+        if (loading) {
+            fetch();
+        }
     }, depends);
 
     return [result, loading, error, reFetch] as FetchData<T>;
