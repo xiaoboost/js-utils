@@ -1,4 +1,4 @@
-import useForceUpdate from './use-force-update';
+import { useForceUpdate } from './use-force-update';
 
 import { Watcher } from '../shared/subject';
 import { useRef, useEffect } from 'react';
