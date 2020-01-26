@@ -7,9 +7,11 @@ export const readFile = promisify(fs.readFile);
 export const writeFile = promisify(fs.writeFile);
 export const stat = promisify(fs.stat);
 export const readdir = promisify(fs.readdir);
-export const rm = promisify(fs.unlink);
 export const exists = promisify(fs.exists);
 export const mkdir = promisify(fs.mkdir);
+
+const rm = promisify(fs.unlink);
+const rmdir = promisify(fs.rmdir);
 
 /** 遍历文件夹下的所有文件 */
 async function filesOperation(base: string, opt: (file: string, stat: fs.Stats) => void | Promise<void>) {
@@ -87,6 +89,7 @@ export async function rmrf(base: string) {
 
     if (fileStat.isDirectory()) {
         await filesOperation(base, (file) => rm(file));
+        await rmdir(base);
     }
     else {
         await rm(base);
