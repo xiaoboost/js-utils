@@ -73,6 +73,15 @@ test('Watcher watch data', () => {
     ]);
 });
 
+test('Watcher observe immediately', async () => {
+    const watcher = new Watcher(123);
+    const fn = jest.fn(() => void 0);
+
+    watcher.observe(fn, true);
+
+    expect(fn.mock.calls.length).toBe(1);
+});
+
 test('watch once Watcher', async () => {
     const watcher = new Watcher(123);
     const fn1 = jest.fn(() => void 0);
@@ -83,7 +92,7 @@ test('watch once Watcher', async () => {
     watcher.once(568).then(fn2);
     watcher.once((val) => val * 2 === 888).then(fn3);
 
-    setTimeout(() => watcher.data = 10, 100);
+    setTimeout(() => (watcher.data = 10), 100);
 
     await delay(120);
 
@@ -91,7 +100,7 @@ test('watch once Watcher', async () => {
     expect(fn2).not.toBeCalled();
     expect(fn3).not.toBeCalled();
 
-    setTimeout(() => watcher.data = 444, 100);
+    setTimeout(() => (watcher.data = 444), 100);
 
     await delay(120);
 
@@ -99,7 +108,7 @@ test('watch once Watcher', async () => {
     expect(fn2).not.toBeCalled();
     expect(fn3).toBeCalledWith(444);
 
-    setTimeout(() => watcher.data = 568, 100);
+    setTimeout(() => (watcher.data = 568), 100);
 
     await delay(120);
 

@@ -154,6 +154,21 @@ export class Watcher<T> extends Subject<T> {
         this._data = initVal;
     }
 
+    /**
+     * 绑定监听器
+     *  - `event`监听器回调
+     *  - `immediately`是否立即运行
+     */
+    observe(event: EventHandler<T>, immediately = false) {
+        const unObserve = super.observe(event);
+
+        if (immediately) {
+            this.notify(this._data, this._data);
+        }
+
+        return unObserve;
+    }
+
     /** 监听一次变化 */
     once(val?: T | ((item: T) => boolean)) {
         const func = arguments.length === 0
