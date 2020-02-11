@@ -163,7 +163,7 @@ export class Watcher<T> extends Subject<T> {
         const unObserve = super.observe(event);
 
         if (immediately) {
-            this.notify(this._data, this._data);
+            event(this._data);
         }
 
         return unObserve;

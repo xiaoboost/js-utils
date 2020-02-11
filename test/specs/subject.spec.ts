@@ -75,11 +75,14 @@ test('Watcher watch data', () => {
 
 test('Watcher observe immediately', async () => {
     const watcher = new Watcher(123);
-    const fn = jest.fn(() => void 0);
+    const fn1 = jest.fn(() => void 0);
+    const fn2 = jest.fn(() => void 0);
 
-    watcher.observe(fn, true);
+    watcher.observe(fn1);
+    watcher.observe(fn2, true);
 
-    expect(fn.mock.calls.length).toBe(1);
+    expect(fn1.mock.calls.length).toBe(0);
+    expect(fn2.mock.calls.length).toBe(1);
 });
 
 test('watch once Watcher', async () => {
