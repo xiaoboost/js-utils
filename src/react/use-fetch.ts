@@ -1,32 +1,42 @@
-import { default as axios, AxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
+import axios from 'axios';
 
-import { useState, useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
+import { AxiosRequestConfig, AxiosResponse } from 'axios';
 import { isArray, isBoolean, isUndef } from '../shared/assert';
+
+import { useMounted } from './use-mounted';
+import { useForceUpdate } from './use-force-update';
+
+interface AjaxError {
+    code: number;
+    message: string;
+}
 
 // TODO: 基础连接
 axios.defaults.baseURL = '';
 
-/** 错误消息 */
-interface ResError {
-    code: number;
-    message: string;
-}
-
-/** 后台数据 */
-interface Ajax<T = any> {
-    code: number;
-    message: string;
-    data: T;
-}
-
-/**
- * 异步 hook 返回数据
- *  - [结果，loading，错误信息，再次获取]
- */
 type FetchData<T> = (
-    [null, true, null, () => void] |
-    [T, false, null, () => void] |
-    [null, false, ResError, () => void]
+    {
+        fetch: () => Promise<T>;
+        count: number;
+        loading: true;
+        error: null;
+        data: null;
+    } |
+    {
+        fetch: () => Promise<T>;
+        count: number;
+        loading: false;
+        error: null;
+        data: T;
+    } |
+    {
+        fetch: () => Promise<T>;
+        count: number;
+        loading: false;
+        error: AjaxError;
+        data: null;
+    }
 );
 
 interface UseFetchMethod {
@@ -99,9 +109,9 @@ function standard(
     // 两个参数
     else if (isUndef(depend)) {
         if (isBoolean(params)) {
+            immediate = params as any;
             params = {};
             depend = [];
-            immediate = params as any;
         }
         else if (isArray(params)) {
             depend = params;
@@ -115,7 +125,12 @@ function standard(
     }
     // 三个参数
     else if (isUndef(immediate)) {
-        if (isArray(depend)) {
+        if (isArray(params)) {
+            immediate = depend as boolean;
+            depend = params;
+            params = {};
+        }
+        else if (isArray(depend)) {
             immediate = false;
         }
         else {
@@ -128,10 +143,16 @@ function standard(
 }
 
 export function useFetch<T = any>(params: AxiosRequestConfig, depend: any[] = [], immediate = false): FetchData<T> {
-    const [loading, setLoading] = useState(immediate);
-    const [result, setResult] = useState<null | T>(null);
-    const [error, setError] = useState<null | ResError>(null);
-    const [allow, setAllow] = useState(immediate);
+    const isMounted = useMounted();
+    const forceUpdate = useForceUpdate();
+    const { current: state } = useRef({
+        count: 0,
+        loading: immediate,
+        error: null as null | AjaxError,
+        result: null as null | T,
+        autoAllow: immediate,
+        manualAllow: immediate,
+    });
 
     /** 外部 promise 开关 */
     const { current: promise } = useRef<PromiseSwitch>({
@@ -139,50 +160,40 @@ export function useFetch<T = any>(params: AxiosRequestConfig, depend: any[] = []
         reject: () => void 0,
     });
 
-    // 依赖带上“允许获取”标志位
-    const depends = depend.concat([loading, allow]);
-
     /** 重置状态 */
-    function resetState() {
-        setAllow(true);
-        setLoading(true);
-        setResult(null);
-        setError(null);
+    function beforeFetch() {
+        state.loading = true;
+        state.result = null;
+        state.error = null;
+        state.count += 1;
+
+        forceUpdate();
     }
 
     /** 获取数据 */
     function fetch() {
         axios(params)
-            .then(({ data }: AxiosResponse<Ajax<T>>) => {
-                setLoading(false);
-
-                if (data.code === 200) {
-                    setResult(data.data);
-                    promise.resolve(data.data);
+            .then(({ data }: AxiosResponse<T>) => {
+                if (!isMounted()) {
+                    return;
                 }
-                else {
-                    const err = {
-                        code: data.code,
-                        message: data.message,
-                    };
 
-                    promise.reject(err);
+                state.result = data;
+                state.loading = false;
+                promise.resolve(data);
 
-                    setError(err);
-                }
+                forceUpdate();
             })
-            .catch((error: AxiosError) => {
-                const err = {
-                    code: Number(error.code || 0),
-                    message: error.message,
-                };
+            .catch((error: AjaxError) => {
+                if (!isMounted()) {
+                    return;
+                }
 
-                promise.reject(err);
+                state.error = error;
+                state.loading = false;
+                promise.reject(error);
 
-                setError(err);
-                setLoading(false);
-
-                return error;
+                forceUpdate();
             });
     }
 
@@ -192,7 +203,7 @@ export function useFetch<T = any>(params: AxiosRequestConfig, depend: any[] = []
      *    这么做主要是为了保证是最后才触发调用，确保传进来的`params`是最新的值，而不是旧的值
      */
     function reFetch(): Promise<T> {
-        resetState();
+        beforeFetch();
 
         return new Promise((resolve, reject) => {
             promise.reject = reject;
@@ -200,13 +211,45 @@ export function useFetch<T = any>(params: AxiosRequestConfig, depend: any[] = []
         });
     }
 
+    // 内部数据监听
     useEffect(() => {
-        if (loading) {
-            fetch();
+        // loading 是内部开关
+        if (!state.loading) {
+            return;
         }
-    }, depends);
 
-    return [result, loading, error, reFetch] as FetchData<T>;
+        // 从未运行，且不允许立即运行，则退出
+        if (state.count === 0 && !immediate) {
+            return;
+        }
+
+        console.log('fetch: ' + params.url);
+
+        fetch();
+    }, [state.loading]);
+
+    // 外部数据监听
+    useEffect(() => {
+        if (state.loading) {
+            return;
+        }
+
+        if (state.autoAllow || immediate) {
+            beforeFetch();
+        }
+
+        if (!state.autoAllow) {
+            state.autoAllow = true;
+        }
+    }, depend);
+
+    return {
+        count: state.count,
+        fetch: reFetch,
+        loading: state.loading,
+        error: state.error,
+        data: state.result,
+    } as FetchData<T>;
 }
 
 export const useGet: UseFetchMethod = (
@@ -227,4 +270,14 @@ export const usePost: UseFetchMethod = (
 ) => {
     const [url, data, depend, immediate] = standard(iurl, iparams, idepend, iimmediate);
     return useFetch({ url, data, method: 'POST' }, depend, immediate);
+};
+
+export const usePut: UseFetchMethod = (
+    iurl: string,
+    iparams?: Record<string, any> | any[] | boolean,
+    idepend?: any[] | boolean,
+    iimmediate?: boolean,
+) => {
+    const [url, data, depend, immediate] = standard(iurl, iparams, idepend, iimmediate);
+    return useFetch({ url, data, method: 'PUT' }, depend, immediate);
 };
