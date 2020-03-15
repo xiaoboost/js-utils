@@ -145,13 +145,12 @@ function standard(
 export function useFetch<T = any>(params: AxiosRequestConfig, depend: any[] = [], immediate = false): FetchData<T> {
     const isMounted = useMounted();
     const forceUpdate = useForceUpdate();
+    const { current: immeRef } = useRef(immediate);
     const { current: state } = useRef({
         count: 0,
         loading: immediate,
         error: null as null | AjaxError,
         result: null as null | T,
-        autoAllow: immediate,
-        manualAllow: immediate,
     });
 
     /** 外部 promise 开关 */
@@ -211,37 +210,30 @@ export function useFetch<T = any>(params: AxiosRequestConfig, depend: any[] = []
         });
     }
 
+    // 外部数据监听
+    useEffect(() => {
+        if (state.count === 0) {
+            return;
+        }
+
+        beforeFetch();
+    }, depend);
+
+    // 首次运行
+    useEffect(() => {
+        if (immeRef) {
+            beforeFetch();
+        }
+    }, []);
+
     // 内部数据监听
     useEffect(() => {
-        // loading 是内部开关
         if (!state.loading) {
             return;
         }
 
-        // 从未运行，且不允许立即运行，则退出
-        if (state.count === 0 && !immediate) {
-            return;
-        }
-
-        console.log('fetch: ' + params.url);
-
         fetch();
     }, [state.loading]);
-
-    // 外部数据监听
-    useEffect(() => {
-        if (state.loading) {
-            return;
-        }
-
-        if (state.autoAllow || immediate) {
-            beforeFetch();
-        }
-
-        if (!state.autoAllow) {
-            state.autoAllow = true;
-        }
-    }, depend);
 
     return {
         count: state.count,
