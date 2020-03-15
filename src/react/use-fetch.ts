@@ -147,7 +147,8 @@ export function useFetch<T = any>(params: AxiosRequestConfig, depend: any[] = []
     const forceUpdate = useForceUpdate();
     const { current: immeRef } = useRef(immediate);
     const { current: state } = useRef({
-        count: 0,
+        fetchCount: 0,
+        allCount: 0,
         loading: immediate,
         error: null as null | AjaxError,
         result: null as null | T,
@@ -164,7 +165,8 @@ export function useFetch<T = any>(params: AxiosRequestConfig, depend: any[] = []
         state.loading = true;
         state.result = null;
         state.error = null;
-        state.count += 1;
+        state.fetchCount += 1;
+        state.allCount += 1;
 
         forceUpdate();
     }
@@ -212,11 +214,9 @@ export function useFetch<T = any>(params: AxiosRequestConfig, depend: any[] = []
 
     // 外部数据监听
     useEffect(() => {
-        if (state.count === 0) {
-            return;
+        if (state.allCount > 0) {
+            beforeFetch();
         }
-
-        beforeFetch();
     }, depend);
 
     // 首次运行
@@ -224,20 +224,21 @@ export function useFetch<T = any>(params: AxiosRequestConfig, depend: any[] = []
         if (immeRef) {
             beforeFetch();
         }
+        else {
+            state.allCount += 1;
+        }
     }, []);
 
     // 内部数据监听
     useEffect(() => {
-        if (!state.loading) {
-            return;
+        if (state.loading) {
+            fetch();
         }
-
-        fetch();
     }, [state.loading]);
 
     return {
-        count: state.count,
         fetch: reFetch,
+        count: state.fetchCount,
         loading: state.loading,
         error: state.error,
         data: state.result,
