@@ -1,3 +1,5 @@
+import { isIOS } from './env';
+
 /** ArrayBuffer 转换为 base64 */
 export function bufferToBase64(arrayBuffer: ArrayBuffer) {
     let base64    = '';
@@ -66,4 +68,57 @@ export function base64ToBuffer(dataURI: string) {
     }
 
     return array;
+}
+
+/** 中横杠转驼峰 */
+export function toCamelCase(str: string) {
+    return str.replace(/-([a-zA-Z])/g, (_, $1: string) => $1.toUpperCase());
+}
+
+/** 复制文本到剪贴板 */
+export function copy(text: string) {
+    const input = document.createElement('textarea');
+
+    input.value = text;
+
+    input.style.fontSize = '12pt';
+    input.style.position = 'fixed';
+    input.style.top = '0';
+    input.style.left = '-9999px';
+    input.style.width = '2em';
+    input.style.height = '2em';
+    input.style.margin = '0';
+    input.style.padding = '0';
+    input.style.border = 'none';
+    input.style.outline = 'none';
+    input.style.boxShadow = 'none';
+    input.style.background = 'transparent';
+
+    input.setAttribute('readonly', '');
+
+    document.body.appendChild(input);
+
+    if (isIOS) {
+        input.contentEditable = 'true';
+        input.readOnly = false;
+
+        const range = document.createRange();
+        range.selectNodeContents(input);
+
+        const selection = window.getSelection()!;
+        selection.removeAllRanges();
+        selection.addRange(range);
+
+        input.setSelectionRange(0, 999999);
+    }
+    else {
+        input.select();
+    }
+
+    const ret = document.execCommand('copy');
+
+    input.blur();
+    document.body.removeChild(input);
+
+    return ret;
 }
