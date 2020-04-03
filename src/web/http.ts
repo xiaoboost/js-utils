@@ -90,3 +90,37 @@ export const get = <T = any>(url: string, params: object = {}) => ajax<T>('GET',
 
 /** POST 请求 */
 export const post = <T = any>(url: string, data?: object) => ajax<T>('POST', url, data);
+
+/** 加载外部 script 文件 */
+export function loadScript(src: string, id?: string, callback?: () => void) {
+    // src 重复
+    if (document.querySelector(`[src|="${src}"]`)) {
+        return;
+    }
+
+    // id 重复
+    if (id && document.getElementById(id)) {
+        return;
+    }
+
+    const script = document.createElement('script');
+    const firstScript = document.getElementsByTagName('script')[0];
+
+    if (id) {
+        script.id = id;
+    }
+
+    script.async = true;
+    script.src = src;
+
+    if (firstScript && firstScript.parentNode) {
+        firstScript.parentNode.insertBefore(script, firstScript);
+    }
+    else {
+        document.body.appendChild(script);
+    }
+
+    if (callback) {
+        script.addEventListener('load', callback);
+    }
+}

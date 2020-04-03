@@ -4,7 +4,7 @@
  * @param {string} type
  * @returns {Promise<Event>}
  */
-export function onceEvent<T extends Event>(el: Element, type: T['type']): Promise<T> {
+export function onceEvent<T extends Event, E extends EventTarget>(el: E, type: T['type']): Promise<T> {
     return new Promise((resolve) => {
         el.addEventListener(
             type,
