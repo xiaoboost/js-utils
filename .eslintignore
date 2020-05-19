@@ -1,7 +1,8 @@
-.vscode/*
+.vscode
 
-bin/*
-node_modules/*
+bin
+dist
+node_modules
 
 index.js
 index-*.js

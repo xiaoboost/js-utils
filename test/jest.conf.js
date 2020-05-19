@@ -2,15 +2,13 @@
 
 const { join } = require('path');
 
-const resolve = (input) => join(__dirname, '..', input);
+const resolve = (...paths) => join(__dirname, '..', ...paths);
 
 module.exports = {
     rootDir: resolve(''),
-    moduleFileExtensions: [
-        'ts', 'tsx', 'js', 'jsx', 'json',
-    ],
+    moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx'],
     moduleNameMapper: {
-        '^utils/(.*)$': '<rootDir>/src/$1',
+        '^src/(.*)$': '<rootDir>/src/$1',
     },
     transform: {
         '^.+\\.(j|t)sx?$': '<rootDir>/node_modules/ts-jest',
@@ -18,6 +16,7 @@ module.exports = {
     testURL: 'http://localhost/',
     testRegex: '(/test/.*spec)\\.ts$',
     coverageDirectory: '<rootDir>/test/coverage',
+    setupFilesAfterEnv: ['<rootDir>/test/setups/env.ts'],
     collectCoverageFrom: [
         // 测试文件
         'src/**/*.ts',

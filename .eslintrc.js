@@ -52,6 +52,8 @@ module.exports =  {
         '@typescript-eslint/no-unused-vars': isProduction ? ['error', { 'vars': 'all', 'args': 'after-used' }] : 'warn',
 
         // common
+        // 注释前后不需要空格
+        'spaced-comment': 'off',
         // 不允许扩展原生数据结构
         'no-extend-native': 'error',
         // 对于 debugger 语句，调试时允许，生产时不允许

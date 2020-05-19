@@ -1,4 +1,4 @@
-import { get } from 'utils/shared/array';
+import { get } from 'src/shared/array';
 
 test('get array item', () => {
     expect(get([0, 1, 2, 3], 1)).toBe(1);

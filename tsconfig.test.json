@@ -3,8 +3,9 @@
     "compilerOptions": {
         "inlineSourceMap": true,
         "module": "commonjs",
-        "target": "esnext"
+        "target": "esnext",
+        "allowJs": true
     },
     "include": ["src", "typings", "test"],
-    "exclude": ["node_modules", "dist", "build"]
+    "exclude": ["node_modules", "dist"]
 }

@@ -1,4 +1,4 @@
-import { Subject, Watcher } from 'utils/shared/subject';
+import { Subject, Watcher } from 'src/shared/subject';
 
 function delay(time: number) {
     return new Promise((resolve) => setTimeout(resolve, time));

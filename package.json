@@ -1,36 +1,43 @@
 {
-  "name": "javascript-utils",
+  "name": "js-utils",
   "version": "1.0.0",
   "description": "自己用的 JavaScript 工具函数",
+  "author": "xiao",
+  "license": "ISC",
+  "main": "./dist",
   "scripts": {
-    "test": "jest --config test/jest.conf.js --coverage --no-cache"
+    "test": "jest --config test/jest.conf.js --coverage --no-cache",
+    "install": "npm run build",
+    "build": "tsc -p ./tsconfig.build.json"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/xiaoboost/javascript-utils.git"
+    "url": "git+https://github.com/xiaoboost/js-utils.git"
   },
-  "author": "xiao",
-  "license": "ISC",
   "bugs": {
-    "url": "https://github.com/xiaoboost/javascript-utils/issues"
+    "url": "https://github.com/xiaoboost/js-utils/issues"
   },
-  "homepage": "https://github.com/xiaoboost/javascript-utils#readme",
+  "homepage": "https://github.com/xiaoboost/js-utils#readme",
+  "peerDependencies": {
+    "bignumber.js": "^9.0.0"
+  },
   "devDependencies": {
-    "@types/jest": "^24.0.23",
-    "@types/node": "^12.12.14",
-    "@types/react": "^16.9.16",
-    "@types/react-dom": "^16.9.4",
-    "@types/react-router-dom": "^5.1.3",
-    "@typescript-eslint/eslint-plugin": "^2.10.0",
-    "@typescript-eslint/parser": "^2.10.0",
-    "axios": "^0.19.1",
-    "eslint": "^6.7.2",
-    "eslint-plugin-react": "^7.17.0",
-    "jest": "^24.9.0",
-    "jest-extended": "^0.11.2",
-    "ts-jest": "^24.2.0",
-    "ts-node": "^8.5.4",
+    "@types/jest": "^25.2.3",
+    "@types/node": "^14.0.1",
+    "@types/react": "^16.9.35",
+    "@types/react-dom": "^16.9.8",
+    "@types/react-router-dom": "^5.1.5",
+    "@typescript-eslint/eslint-plugin": "^2.34.0",
+    "@typescript-eslint/parser": "^2.34.0",
+    "bignumber.js": "^9.0.0",
+    "eslint": "^7.0.0",
+    "eslint-plugin-react": "^7.20.0",
+    "jest": "^26.0.1",
+    "jest-extended": "^0.11.5",
+    "ts-jest": "^26.0.0",
+    "ts-node": "^8.10.1",
     "tsconfig-paths-webpack-plugin": "^3.2.0",
-    "typescript": "^3.7.3"
-  }
+    "typescript": "^3.9.2"
+  },
+  "dependencies": {}
 }
