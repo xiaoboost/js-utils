@@ -1,4 +1,4 @@
-export function add(el: HTMLElement, className: string) {
+export function addClassName(el: HTMLElement, className: string) {
   const classNameTrim = className.trim();
   const oldClassNames = (el.getAttribute('class') ?? '').split(/\s+/);
 
@@ -13,7 +13,7 @@ export function add(el: HTMLElement, className: string) {
   el.setAttribute('class', newCLassNames);
 }
 
-export function remove(el: HTMLElement, className: string) {
+export function removeClassName(el: HTMLElement, className: string) {
   const classNameTrim = className.trim();
   const oldClassNames = (el.getAttribute('class') ?? '').split(/\s+/);
 
