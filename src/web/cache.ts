@@ -5,7 +5,7 @@ const enum StorageType {
 
 const timeSplit = '/*time-limit*/';
 
-class StorageWapper {
+class StorageWrapper {
     /**
      * 时间限制
      *  - 单位：天
@@ -109,5 +109,5 @@ class StorageWapper {
     }
 }
 
-export const local = new StorageWapper(StorageType.local);
-export const session = new StorageWapper(StorageType.session);
+export const local = new StorageWrapper(StorageType.local);
+export const session = new StorageWrapper(StorageType.session);

@@ -1,3 +1,7 @@
+import type { AnyObject } from './types';
+
+type AnyFunction = (...args: any[]) => any;
+
 const _toString = Object.prototype.toString;
 
 /** 基础类型 */
@@ -11,8 +15,8 @@ export type Primitive = number | string | boolean | symbol;
  * @param {*} x
  * @returns {x is number}
  */
-export function isNumber(x: any): x is number {
-    return (typeof x === 'number');
+export function isNumber(x: unknown): x is number {
+  return (typeof x === 'number');
 }
 
 /**
@@ -21,8 +25,8 @@ export function isNumber(x: any): x is number {
  * @param {*} x
  * @returns {x is string}
  */
-export function isString(x: any): x is string {
-    return (typeof x === 'string');
+export function isString(x: unknown): x is string {
+  return (typeof x === 'string');
 }
 
 /**
@@ -31,8 +35,8 @@ export function isString(x: any): x is string {
  * @param {*} x
  * @returns {x is boolean}
  */
-export function isBoolean(x: any): x is boolean {
-    return (typeof x === 'boolean');
+export function isBoolean(x: unknown): x is boolean {
+  return (typeof x === 'boolean');
 }
 
 /**
@@ -41,8 +45,8 @@ export function isBoolean(x: any): x is boolean {
  * @param {*} x
  * @returns {x is symbol}
  */
-export function isSymbol(x: any): x is symbol {
-    return (typeof x === 'symbol');
+export function isSymbol(x: unknown): x is symbol {
+  return (typeof x === 'symbol');
 }
 
 /**
@@ -51,8 +55,8 @@ export function isSymbol(x: any): x is symbol {
  * @param {*} x
  * @returns {(x is null | undefined)}
  */
-export function isUndef(x: any): x is null | undefined {
-    return x === undefined || x === null;
+export function isUndef(x: unknown): x is null | undefined {
+  return x === undefined || x === null;
 }
 
 /**
@@ -62,7 +66,7 @@ export function isUndef(x: any): x is null | undefined {
  * @returns {(x is NonNullable<T>)}
  */
 export function isDef<T>(x: T): x is NonNullable<T> {
-    return x !== undefined && x !== null;
+  return x !== undefined && x !== null;
 }
 
 /**
@@ -72,8 +76,8 @@ export function isDef<T>(x: T): x is NonNullable<T> {
  * @returns {x is () => any}
  */
 /* tslint:disable-next-line:ban-types  */
-export function isFunc(x: any): x is AnyFunction {
-    return (typeof x === 'function');
+export function isFunc(x: unknown): x is AnyFunction {
+  return (typeof x === 'function');
 }
 
 /**
@@ -84,8 +88,8 @@ export function isFunc(x: any): x is AnyFunction {
  * @param {*} x
  * @returns {x is object}
  */
-export function isStrictObject(x: any): x is object {
-    return _toString.call(x) === '[object Object]';
+export function isStrictObject(x: unknown): x is AnyObject {
+  return _toString.call(x) === '[object Object]';
 }
 
 /**
@@ -96,13 +100,13 @@ export function isStrictObject(x: any): x is object {
  * @param {*} x
  * @returns {x is object}
  */
-export function isObject(x: any): x is object {
-    const type = typeof x;
-    return (
-        isDef(x) &&
-        type === 'object' ||
-        type === 'function'
-    );
+export function isObject(x: unknown): x is AnyObject {
+  const type = typeof x;
+  return (
+    isDef(x) &&
+    type === 'object' ||
+    type === 'function'
+  );
 }
 
 /**
@@ -111,28 +115,8 @@ export function isObject(x: any): x is object {
  * @param {*} x
  * @returns {x is any[]}
  */
-export function isArray(x: any): x is any[] {
-    return Array.isArray(x);
-}
-
-/**
- * 断言：输入是否是正则表达式
- *
- * @param {*} x
- * @returns {x is RegExp}
- */
-export function isRegExp(x: any): x is RegExp {
-    return _toString.call(x) === '[object RegExp]';
-}
-
-/**
- * 断言：输入是否是 DOM 元素
- *
- * @param {*} x
- * @returns {x is HTMLElement}
- */
-export function isElement(x: any): x is HTMLElement {
-    return (/^\[object (HTML|SVG)([a-zA-Z]+)?Element\]$/.test(_toString.call(x) as string));
+export function isArray(x: unknown): x is any[] {
+  return Array.isArray(x);
 }
 
 /**
@@ -141,8 +125,8 @@ export function isElement(x: any): x is HTMLElement {
  * @param {*} x
  * @returns {(x is BaseType)}
  */
-export function isBaseType(x: any): x is BaseType {
-    return (!isObject(x));
+export function isBaseType(x: unknown): x is BaseType {
+  return (!isObject(x));
 }
 
 /**
@@ -151,12 +135,12 @@ export function isBaseType(x: any): x is BaseType {
  * @param {*} x
  * @returns {(x is Primitive)}
  */
-export function isPrimitive(x: any): x is Primitive {
-    const type = typeof x;
-    return (
-        type === 'string' ||
-        type === 'number' ||
-        type === 'symbol' ||
-        type === 'boolean'
-    );
+export function isPrimitive(x: unknown): x is Primitive {
+  const type = typeof x;
+  return (
+    type === 'string' ||
+    type === 'number' ||
+    type === 'symbol' ||
+    type === 'boolean'
+  );
 }

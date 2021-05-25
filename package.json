@@ -1,43 +1,35 @@
 {
-  "name": "js-utils",
+  "name": "@xiao/utils",
   "version": "1.0.0",
   "description": "自己用的 JavaScript 工具函数",
-  "author": "xiao",
-  "license": "ISC",
-  "main": "./dist",
+  "author": "xiaoboost",
+  "license": "MIT",
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/esm/index.js",
+  "types": "./dist/types/index.d.ts",
+  "files": [
+    "dist",
+    "package.json",
+    "README.md"
+  ],
   "scripts": {
     "test": "jest --config test/jest.conf.js --coverage --no-cache",
-    "install": "npm run build",
-    "build": "tsc -p ./tsconfig.build.json"
+    "build": "ts-node -T --project ./tsconfig.json ./build/build.ts"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/xiaoboost/js-utils.git"
   },
-  "bugs": {
-    "url": "https://github.com/xiaoboost/js-utils/issues"
-  },
-  "homepage": "https://github.com/xiaoboost/js-utils#readme",
-  "peerDependencies": {
-    "bignumber.js": "^9.0.0"
-  },
   "devDependencies": {
-    "@types/jest": "^25.2.3",
-    "@types/node": "^14.0.1",
-    "@types/react": "^16.9.35",
-    "@types/react-dom": "^16.9.8",
-    "@types/react-router-dom": "^5.1.5",
-    "@typescript-eslint/eslint-plugin": "^2.34.0",
-    "@typescript-eslint/parser": "^2.34.0",
-    "bignumber.js": "^9.0.0",
-    "eslint": "^7.0.0",
-    "eslint-plugin-react": "^7.20.0",
-    "jest": "^26.0.1",
-    "jest-extended": "^0.11.5",
-    "ts-jest": "^26.0.0",
-    "ts-node": "^8.10.1",
-    "tsconfig-paths-webpack-plugin": "^3.2.0",
-    "typescript": "^3.9.2"
-  },
-  "dependencies": {}
+    "@types/node": "^15.6.1",
+    "@typescript-eslint/eslint-plugin": "^4.25.0",
+    "@typescript-eslint/parser": "^4.25.0",
+    "ava": "^3.15.0",
+    "esbuild": "^0.12.2",
+    "eslint": "^7.27.0",
+    "rimraf": "^3.0.2",
+    "ts-node": "^10.0.0",
+    "tslib": "^2.2.0",
+    "typescript": "^4.2.4"
+  }
 }

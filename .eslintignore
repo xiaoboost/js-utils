@@ -1,8 +1,0 @@
-.vscode
-
-bin
-dist
-node_modules
-
-index.js
-index-*.js
