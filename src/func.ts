@@ -39,28 +39,15 @@ type ReturnPromiseType<T> = T extends (...args: any) => Promise<infer R>
     : any;
 
 /** 防抖动函数包装 */
-export function debounce<
-  T extends AnyFunction
->(cb: T): (...args: Parameters<T>) => Promise<ReturnPromiseType<T>>;
-export function debounce<
-  T extends AnyFunction
->(delay: number, cb: T): (...args: Parameters<T>) => Promise<ReturnPromiseType<T>>;
-export function debounce<
-  T extends AnyFunction
->(delay: number | T, cb?: T): (...args: Parameters<T>) => Promise<ReturnPromiseType<T>> {
+export function debounce<T extends AnyFunction>(
+  cb: T,
+  delay = 200,
+): (...args: Parameters<T>) => Promise<ReturnPromiseType<T>> {
   let timer: ReturnType<typeof setTimeout>;
-  let time: number, cbt: T;
 
-  if (typeof delay === 'function') {
-    cbt = delay;
-    time = 200;
-  }
-  else {
-    cbt = cb as T;
-    time = delay;
-  }
-
-  let _resolve: (value: ReturnPromiseType<T> | PromiseLike<ReturnPromiseType<T>>) => void;
+  let _resolve: (
+    value: ReturnPromiseType<T> | PromiseLike<ReturnPromiseType<T>>,
+  ) => void;
   let _reject: (error: any) => void;
 
   const end = new Promise<ReturnPromiseType<T>>((resolve, reject) => {
@@ -72,7 +59,7 @@ export function debounce<
     clearTimeout(timer);
     timer = setTimeout(() => {
       try {
-        const result = cbt(...args);
+        const result = cb(...args);
 
         if (result && isFunc(result.then)) {
           result.then(_resolve);
@@ -84,7 +71,7 @@ export function debounce<
       catch (e) {
         _reject(e);
       }
-    }, time);
+    }, delay);
 
     return end;
   };

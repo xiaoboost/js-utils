@@ -51,7 +51,11 @@ export function isEqual(from: any, to: any, deepCheck = false): boolean {
   }
 
   if (deepCheck && checkCircularStructure(from)) {
-    throw new Error('Can not equal AnyObject that have circular structure.');
+    throw new Error('(isEqual) Can not have circular structure.');
+  }
+
+  if (isFunc(from.isEqual)) {
+    return Boolean(from.isEqual(to));
   }
 
   if (isArray(from)) {
@@ -59,26 +63,23 @@ export function isEqual(from: any, to: any, deepCheck = false): boolean {
       return false;
     }
     else {
-      return from.every(
-        (item, i) => isBaseType(item)
-          ? item === to[i]
-          : isEqual(item, to[i]),
+      return from.every((item, i) =>
+        isBaseType(item) ? item === to[i] : isEqual(item, to[i]),
       );
     }
   }
   else {
     if (
+      isArray(to) ||
       !isObject(to) ||
-      !Object.keys(from).every((key) => to.hasOwnProperty(key)) ||
-      !Object.keys(to).every((key) => from.hasOwnProperty(key))
+      !Object.keys(from).every((key) => hasOwn(to, key)) ||
+      !Object.keys(to).every((key) => hasOwn(from, key))
     ) {
       return false;
     }
     else {
-      return Object.entries(from).every(
-        ([key, value]) => isBaseType(value)
-          ? value === to[key]
-          : isEqual(value, to[key]),
+      return Object.entries(from).every(([key, value]) =>
+        isBaseType(value) ? value === to[key] : isEqual(value, to[key]),
       );
     }
   }

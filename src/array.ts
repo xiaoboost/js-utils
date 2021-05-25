@@ -1,6 +1,6 @@
 /* eslint-disable max-len  */
 
-import { isFunc, isDef } from './assert';
+import { isFunc, isDef, isUndef, isArray } from './assert';
 import { AnyObject } from './types';
 
 /** 索引类型 */
@@ -97,11 +97,24 @@ export function unique<T>(arr: T[], label?: (value: T, index: number) => Index):
 }
 
 /** 连接数组 */
-export function concat<T, U>(from: T[], callback: (val: T) => U | U[] | undefined): U[] {
+export function concat<T, U>(
+  from: T[],
+  cb: (val: T) => (U | undefined)[] | U | undefined,
+): U[] {
   let result: U[] = [];
 
   for (let i = 0; i < from.length; i++) {
-    result = result.concat(callback(from[i]) || []);
+    const item = cb(from[i]);
+
+    if (isUndef(item)) {
+      continue;
+    }
+    else if (isArray(item)) {
+      result = result.concat(item.filter(isDef));
+    }
+    else {
+      result.push(item);
+    }
   }
 
   return result;

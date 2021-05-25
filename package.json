@@ -1,6 +1,6 @@
 {
   "name": "@xiao-ai/utils",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "自己用的 JavaScript 工具函数集合",
   "author": "xiaoboost",
   "license": "MIT",
@@ -26,14 +26,27 @@
   ],
   "scripts": {
     "clear": "rimraf ./dist",
-    "test": "jest --config test/jest.conf.js --coverage --no-cache",
+    "test": "ava --no-cache",
     "dev": "tsc -w -p ./tsconfig.dev.json",
     "prepublishOnly": "pnpm run build",
     "publish": "pnpm publish --access=public --registry=https://registry.npmjs.org",
     "publish:alpha": "pnpm publish --tag=alpha --access=public --registry=https://registry.npmjs.org --no-git-checks",
+    "lint": "eslint --quiet --no-error-on-unmatched-pattern --config ./.eslintrc.js {src,tests}/**/*.{ts,tsx,js,jsx}",
+    "lint:fix": "eslint --fix --quiet --no-error-on-unmatched-pattern --config ./.eslintrc.js {src,tests}/**/*.{ts,tsx,js,jsx}",
     "build:cjs": "tsc -p ./tsconfig.build.json -m CommonJS --outDir ./dist/cjs",
     "build:esm": "tsc -p ./tsconfig.build.json -m ESNext --outDir ./dist/esm",
     "build": "pnpm run clear && pnpm run build:cjs && pnpm run build:esm"
+  },
+  "ava": {
+    "extensions": [
+      "ts"
+    ],
+    "require": [
+      "ts-node/register/transpile-only"
+    ],
+    "files": [
+      "tests/*.spec.ts"
+    ]
   },
   "repository": {
     "type": "git",
