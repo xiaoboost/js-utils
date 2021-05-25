@@ -3,6 +3,7 @@
   "include": ["src"],
   "compilerOptions": {
     "target": "ES5",
-    "sourceMap": false
+    "sourceMap": false,
+    "declarationDir": "./dist/types"
   }
 }

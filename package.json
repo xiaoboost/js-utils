@@ -1,15 +1,22 @@
 {
-  "name": "@xiao/utils",
-  "version": "1.0.0-alpha1",
+  "name": "@xiao-ai/utils",
+  "version": "1.0.0",
   "description": "自己用的 JavaScript 工具函数集合",
   "author": "xiaoboost",
   "license": "MIT",
   "main": "./dist/cjs/index.js",
   "module": "./dist/esm/index.js",
+  "types": "./dist/types/index.d.ts",
   "exports": {
+    ".": {
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.js",
+      "types": "./dist/types/index.d.ts"
+    },
     "./web": {
       "import": "./dist/esm/web/index.js",
-      "require": "./dist/cjs/web/index.js"
+      "require": "./dist/cjs/web/index.js",
+      "types": "./dist/types/web/index.d.ts"
     }
   },
   "files": [
@@ -21,8 +28,11 @@
     "clear": "rimraf ./dist",
     "test": "jest --config test/jest.conf.js --coverage --no-cache",
     "dev": "tsc -w -p ./tsconfig.dev.json",
-    "build:cjs": "tsc -p ./tsconfig.build.json -m CommonJS --outDir ./dist/cjs --declarationDir ./dist/cjs",
-    "build:esm": "tsc -p ./tsconfig.build.json -m ESNext --outDir ./dist/esm --declarationDir ./dist/esm",
+    "prepublishOnly": "pnpm run build",
+    "publish": "pnpm publish --access=public --registry=https://registry.npmjs.org",
+    "publish:alpha": "pnpm publish --tag=alpha --access=public --registry=https://registry.npmjs.org --no-git-checks",
+    "build:cjs": "tsc -p ./tsconfig.build.json -m CommonJS --outDir ./dist/cjs",
+    "build:esm": "tsc -p ./tsconfig.build.json -m ESNext --outDir ./dist/esm",
     "build": "pnpm run clear && pnpm run build:cjs && pnpm run build:esm"
   },
   "repository": {
