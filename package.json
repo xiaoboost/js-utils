@@ -1,20 +1,29 @@
 {
   "name": "@xiao/utils",
-  "version": "1.0.0",
-  "description": "自己用的 JavaScript 工具函数",
+  "version": "1.0.0-alpha1",
+  "description": "自己用的 JavaScript 工具函数集合",
   "author": "xiaoboost",
   "license": "MIT",
   "main": "./dist/cjs/index.js",
   "module": "./dist/esm/index.js",
-  "types": "./dist/types/index.d.ts",
+  "exports": {
+    "./web": {
+      "import": "./dist/esm/web/index.js",
+      "require": "./dist/cjs/web/index.js"
+    }
+  },
   "files": [
     "dist",
     "package.json",
     "README.md"
   ],
   "scripts": {
+    "clear": "rimraf ./dist",
     "test": "jest --config test/jest.conf.js --coverage --no-cache",
-    "build": "ts-node -T --project ./tsconfig.json ./build/build.ts"
+    "dev": "tsc -w -p ./tsconfig.dev.json",
+    "build:cjs": "tsc -p ./tsconfig.build.json -m CommonJS --outDir ./dist/cjs --declarationDir ./dist/cjs",
+    "build:esm": "tsc -p ./tsconfig.build.json -m ESNext --outDir ./dist/esm --declarationDir ./dist/esm",
+    "build": "pnpm run clear && pnpm run build:cjs && pnpm run build:esm"
   },
   "repository": {
     "type": "git",
