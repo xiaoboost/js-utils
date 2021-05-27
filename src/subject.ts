@@ -5,12 +5,8 @@ type EventHandler<T = any> = (...payloads: T[]) => any;
 type ReadonlyObject<T> = T extends AnyObject ? Readonly<T> : T;
 
 type GetWatcherType<W> = W extends Watcher<infer R> ? R : never;
-type GetWatcherListType<W extends readonly Watcher<any>[]> = {
-  [K in keyof W]: GetWatcherType<W[K]>;
-};
-type CreateWatcherList<V extends readonly any[]> = {
-  [K in keyof V]: Watcher<V[K]>;
-};
+type GetWatcherListType<W extends readonly Watcher<any>[]> = { [K in keyof W]: GetWatcherType<W[K]> };
+type CreateWatcherList<V extends readonly any[]> = { [K in keyof V]: Watcher<V[K]> };
 
 /** 频道订阅者 */
 export class ChannelSubject {
@@ -120,19 +116,16 @@ export class Watcher<T> extends Subject<T> {
   static computed<
     Watchers extends readonly Watcher<any>[],
     Params extends GetWatcherListType<Watchers>,
-    Values extends readonly any[]
-  >(
-    watchers: Watchers,
-    cb: (...args: Params) => Values,
-  ): CreateWatcherList<Values> {
-    const initVal = cb(...(watchers.map(({ _data }) => _data) as any));
+    Values extends readonly any[],
+  >(watchers: Watchers, cb: (...args: Params) => Values): CreateWatcherList<Values> {
+    const initVal = cb(...watchers.map(({ _data }) => _data) as any);
     const newWatchers = initVal.map((init) => new Watcher(init));
 
     // 更新所有观测器的回调
     const observeCb = () => {
       const current: Params = watchers.map(({ _data }) => _data) as any;
       cb(...current).forEach((val, i) => {
-        newWatchers[i].data = val;
+        newWatchers[i].setData(val);
       });
     };
 
@@ -148,18 +141,20 @@ export class Watcher<T> extends Subject<T> {
   get data(): ReadonlyObject<T> {
     return this._data as any;
   }
-  set data(val: ReadonlyObject<T>) {
+
+  constructor(initVal: T) {
+    super();
+    this._data = initVal;
+  }
+
+  /** 设置值 */
+  setData(val: T) {
     if (val !== this._data) {
       const last = this._data;
 
       this._data = val;
       this.notify(val, last);
     }
-  }
-
-  constructor(initVal: T) {
-    super();
-    this._data = initVal;
   }
 
   /**
@@ -180,16 +175,15 @@ export class Watcher<T> extends Subject<T> {
 
   /** 监听一次变化 */
   once(val?: T | ((item: T) => boolean)) {
-    const func =
-      arguments.length === 0
-        ? () => true
-        : isFunc(val)
-          ? val
-          : (item: T) => item === val;
+    const func = arguments.length === 0
+      ? () => true
+      : isFunc(val)
+        ? val
+        : (item: T) => item === val;
 
     return new Promise<ReadonlyObject<T>>((resolve) => {
       const callback = (item: T) => {
-        if (func && func(item)) {
+        if (func(item)) {
           this.unObserve(callback);
           resolve(item as ReadonlyObject<T>);
         }
@@ -201,7 +195,7 @@ export class Watcher<T> extends Subject<T> {
   /** 扩展并生成新的监控器 */
   computed<U>(cb: (val: T) => U): Watcher<U> {
     const watcher = new Watcher(cb(this._data));
-    this.observe((val) => (watcher.data = cb(val) as any));
+    this.observe((val) => watcher.setData(cb(val)));
     return watcher;
   }
 }
