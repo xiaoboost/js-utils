@@ -31,10 +31,17 @@ export function useWatcher<T>(watcher: Watcher<T>) {
 }
 
 interface ListActions<U, T extends Array<U>> {
+  /** 重新填充数据 */
   reset: (newList: T) => void;
+  /** 将元素加入数组末尾 */
   push: (...items: U[]) => void;
+  /** 弹出最后的元素 */
   pop: () => U | undefined;
+  /** 移除指定下标的元素 */
   remove: (index: number) => void;
+  /** 替换指定下标的元素 */
+  replace: (index: number, val: U) => void;
+  /** 清空数组 */
   clear: () => void;
 }
 
@@ -62,6 +69,11 @@ export function useWatcherList<U, T extends Array<U>>(watcher: Watcher<T>) {
     },
     clear() {
       setStatus([] as any);
+    },
+    replace(index: number, val: U) {
+      const newList = state.current.slice();
+      newList.splice(index, 1, val);
+      setStatus(newList as any);
     },
   };
 
