@@ -8,6 +8,7 @@
     "moduleResolution": "node",
     "module": "CommonJS",
     "target": "ESNext",
+    "jsx": "react",
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "isolatedModules": false,

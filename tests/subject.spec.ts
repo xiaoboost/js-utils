@@ -1,6 +1,6 @@
 import test from 'ava';
 
-import { Subject, Watcher } from '../src';
+import { Subject, Watcher } from 'src';
 
 test('pass', ({ pass }) => {
   pass();

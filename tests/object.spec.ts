@@ -5,7 +5,7 @@ import {
   isEqual,
   clone,
   checkCircularStructure,
-} from '../src';
+} from 'src';
 
 test('isEmpty', ({ true: isTrue, false: isFalse }) => {
   isTrue(isEmpty({}));

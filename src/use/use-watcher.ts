@@ -1,5 +1,5 @@
 import { Watcher } from '../subject';
-import { AnyObject } from '../types';
+import { AnyObject, GetArrayItem } from '../types';
 import { BaseType, isBaseType } from '../assert';
 import { useForceUpdate } from './use-force-update';
 
@@ -30,28 +30,28 @@ export function useWatcher<T>(watcher: Watcher<T>) {
   return [state.current, setStatus] as const;
 }
 
-interface ListActions<U, T extends Array<U>> {
+interface ListActions<T extends Array<any>> {
   /** 重新填充数据 */
   reset: (newList: T) => void;
   /** 将元素加入数组末尾 */
-  push: (...items: U[]) => void;
+  push: (...items: T) => void;
   /** 弹出最后的元素 */
-  pop: () => U | undefined;
+  pop: () => GetArrayItem<T> | undefined;
   /** 移除指定下标的元素 */
   remove: (index: number) => void;
   /** 替换指定下标的元素 */
-  replace: (index: number, val: U) => void;
+  replace: (index: number, val: GetArrayItem<T>) => void;
   /** 清空数组 */
   clear: () => void;
 }
 
-export function useWatcherList<U, T extends Array<U>>(watcher: Watcher<T>) {
+export function useWatcherList<T extends Array<any>>(watcher: Watcher<T>) {
   const update = useForceUpdate();
   const state = useRef(watcher.data);
   const setStatus = (val: T) => watcher.setData(val);
-  const methods: ListActions<U, T> = {
+  const methods: ListActions<T> = {
     reset: (newList: T) => setStatus(newList),
-    push(...items: U[]) {
+    push(...items: T) {
       const newList = state.current.slice();
       newList.push(...items);
       setStatus(newList as any);
@@ -64,13 +64,13 @@ export function useWatcherList<U, T extends Array<U>>(watcher: Watcher<T>) {
     },
     remove(index: number) {
       const newList = state.current.slice();
-      newList.slice(index, 1);
+      newList.splice(index, 1);
       setStatus(newList as any);
     },
     clear() {
       setStatus([] as any);
     },
-    replace(index: number, val: U) {
+    replace(index: number, val: GetArrayItem<T>) {
       const newList = state.current.slice();
       newList.splice(index, 1, val);
       setStatus(newList as any);
