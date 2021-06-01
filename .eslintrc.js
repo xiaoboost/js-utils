@@ -34,7 +34,7 @@ module.exports =  {
     'no-multi-spaces': 'off',
 
     'max-len': ['warn', {
-      code: 90,
+      code: 100,
     }],
     'keyword-spacing': 'error',
     'curly': 'error',

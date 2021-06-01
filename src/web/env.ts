@@ -13,30 +13,24 @@ export let supportsOnce = false;
 
 if (inBrowser) {
   try {
-    const opts = Object.defineProperty({}, 'passive', {
+    document.body.addEventListener('test', null as any, Object.defineProperty({}, 'passive', {
       get() {
         supportsPassive = true;
       },
-    });
-    document.body.addEventListener('test', null as any, opts);
+    }));
   }
   catch (e) {
     // ..
   }
 
   try {
-    const opts = Object.defineProperty({}, 'once', {
+    document.body.addEventListener('test', null as any, Object.defineProperty({}, 'once', {
       get() {
         supportsOnce = true;
       },
-    });
-    document.body.addEventListener('test', null as any, opts);
+    }));
   }
   catch (e) {
     // ..
   }
 }
-
-// 全局禁止右键
-document.body.oncontextmenu = null;
-document.body.addEventListener('contextmenu', (event) => event.preventDefault(), true);
