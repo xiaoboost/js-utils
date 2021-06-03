@@ -37,7 +37,7 @@ export function urlParamEncode(params: AnyObject) {
 }
 
 /** 创建获取 url 参数的函数 */
-function createUrlMethod(reg: (str: string) => string) {
+const createUrlMethod = /* @__PURE__ */ function createUrlMethod(reg: (str: string) => string) {
   return (name: string) => {
     name = name.replace(/[[\]]/g, '\\$&');
 
@@ -53,17 +53,17 @@ function createUrlMethod(reg: (str: string) => string) {
 }
 
 /** 获取 url 中的参数 - 问号后面的参数 */
-export const getQueryByName = createUrlMethod((name: string) => {
+export const getQueryByName = /* @__PURE__ */ createUrlMethod((name: string) => {
   return `[?&]${name}(=([^&#]*)|&|#|$)`;
 });
 
 /** 获取 url 中的参数 - 链接中的参数 */
-export const getParameterByName = createUrlMethod((name) => {
+export const getParameterByName = /* @__PURE__ */ createUrlMethod((name) => {
   return `\\/${name}(\\/([^&# ]+?)(\\/|\\?|$))`;
 });
 
 /** ajax 请求接口 */
-function ajax<T>(type: 'GET' | 'POST', url: string, data?: AnyObject) {
+const ajax = /* @__PURE__ */ function ajax<T>(type: 'GET' | 'POST', url: string, data?: AnyObject) {
   return new Promise<T>((resolve, reject) => {
     const xhr = new XMLHttpRequest();
 
@@ -91,12 +91,12 @@ function ajax<T>(type: 'GET' | 'POST', url: string, data?: AnyObject) {
 }
 
 /** GET 请求 */
-export const get = <T = any>(url: string, params: AnyObject = {}) => {
+export const get = /* @__PURE__ */ <T = any>(url: string, params: AnyObject = {}) => {
   return ajax<T>('GET', `${url}${urlParamEncode(params)}`);
 };
 
 /** POST 请求 */
-export const post = <T = any>(url: string, data?: AnyObject) => {
+export const post = /* @__PURE__ */ <T = any>(url: string, data?: AnyObject) => {
   return ajax<T>('POST', url, data);
 };
 

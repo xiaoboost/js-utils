@@ -109,5 +109,5 @@ class StorageWrapper {
   }
 }
 
-export const local = new StorageWrapper(StorageType.local);
-export const session = new StorageWrapper(StorageType.session);
+export const local = /* @__PURE__ */ new StorageWrapper(StorageType.local);
+export const session = /* @__PURE__ */ new StorageWrapper(StorageType.session);

@@ -2,7 +2,7 @@
   "extends": "./tsconfig.json",
   "include": ["src"],
   "compilerOptions": {
-    "target": "ES5",
+    "target": "ES2015",
     "sourceMap": false,
     "declarationDir": "./dist/types"
   }

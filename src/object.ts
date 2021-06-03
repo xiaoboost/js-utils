@@ -6,6 +6,7 @@ import {
 } from './assert';
 
 import { AnyObject } from './types';
+import { toBoolMap } from './array';
 
 /**
  * 对象是否为空
@@ -164,13 +165,32 @@ export function clone<T>(data: T, check = true): T {
  */
 export function copyProperties<
   T extends AnyObject,
-  U extends keyof T
+  U extends keyof T,
 >(from: T, keys: U[]): Pick<T, U> {
   const data: T = {} as any;
 
   for (let i = 0; i < keys.length; i++) {
     const key = keys[i];
     data[key] = from[key];
+  }
+
+  return data;
+}
+
+export function omit<
+  T extends AnyObject,
+  U extends keyof T,
+>(from: T, keys: U[]): Omit<T, U> {
+  const data: T = {} as any;
+  const allKeys = Object.keys(from);
+  const omitMap = toBoolMap(keys as any);
+
+  for (let i = 0; i < allKeys.length; i++) {
+    const key = allKeys[i];
+
+    if (!omitMap[key]) {
+      (data as any)[key] = from[key];
+    }
   }
 
   return data;

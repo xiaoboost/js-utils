@@ -1,22 +1,22 @@
 {
   "name": "@xiao-ai/utils",
-  "version": "1.2.4",
+  "version": "1.3.0",
   "description": "自己用的 JavaScript 工具函数集合",
   "author": "xiaoboost",
   "license": "MIT",
   "main": "./dist/cjs/index.js",
   "module": "./dist/esm/index.js",
-  "types": "./dist/esm/index.d.ts",
+  "types": "./dist/types/index.d.ts",
   "exports": {
     ".": {
       "import": "./dist/esm/index.js",
       "require": "./dist/cjs/index.js",
-      "types": "./dist/esm/index.d.ts"
+      "types": "./dist/types/index.d.ts"
     },
     "./web": {
       "import": "./dist/esm/web/index.js",
       "require": "./dist/cjs/web/index.js",
-      "types": "./dist/esm/web/index.d.ts"
+      "types": "./dist/types/web/index.d.ts"
     }
   },
   "files": [
@@ -33,8 +33,8 @@
     "publish:alpha": "pnpm publish --tag=alpha --access=public --registry=https://registry.npmjs.org --no-git-checks",
     "lint": "eslint --quiet --no-error-on-unmatched-pattern --config ./.eslintrc.js {src,tests}/**/*.{ts,tsx,js,jsx}",
     "lint:fix": "eslint --fix --quiet --no-error-on-unmatched-pattern --config ./.eslintrc.js {src,tests}/**/*.{ts,tsx,js,jsx}",
-    "build:cjs": "tsc -p ./tsconfig.build.json -m CommonJS --outDir ./dist/cjs --declarationDir ./dist/cjs",
-    "build:esm": "tsc -p ./tsconfig.build.json -m ESNext --outDir ./dist/esm --declarationDir ./dist/esm",
+    "build:cjs": "tsc -p ./tsconfig.build.json -m CommonJS --outDir ./dist/cjs",
+    "build:esm": "tsc -p ./tsconfig.build.json -m ESNext --outDir ./dist/esm",
     "build": "pnpm run clear && pnpm run build:cjs && pnpm run build:esm"
   },
   "ava": {
