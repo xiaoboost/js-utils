@@ -21,6 +21,7 @@
     "importHelpers": true,
     "listFiles": false,
     "removeComments": false,
+    "skipLibCheck": true,
     "suppressImplicitAnyIndexErrors": true,
     "lib": ["ESNext", "dom"],
     "baseUrl": "."
