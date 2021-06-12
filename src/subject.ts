@@ -1,4 +1,4 @@
-import { isFunc } from './assert';
+import { isFunc, isString, isUndef, isDef } from './assert';
 import { AnyObject } from './types';
 
 type EventHandler<T = any> = (...payloads: T[]) => any;
@@ -8,24 +8,86 @@ type GetWatcherType<W> = W extends Watcher<infer R> ? R : never;
 type GetWatcherListType<W extends readonly Watcher<any>[]> = { [K in keyof W]: GetWatcherType<W[K]> };
 type CreateWatcherList<V extends readonly any[]> = { [K in keyof V]: Watcher<V[K]> };
 
+/** 分类数据储存 */
+export class ChannelData<T = any> {
+  private _data: Record<string, T[]> = {};
+
+  push(channel: string, data: T) {
+    if (!this._data[channel]) {
+      this._data[channel] = [];
+    }
+
+    this._data[channel].push(data);
+  }
+
+  pop(channel: string) {
+    const stack = this._data[channel];
+
+    if (!stack) {
+      return;
+    }
+
+    const result = stack.pop();
+
+    if (stack.length === 0){
+      delete this._data[channel];
+    }
+
+    return result;
+  }
+
+  remove(data: T): void;
+  remove(channel: string): void;
+  remove(channel: string, data: T): void;
+  remove(channel: string | T, data?: T) {
+    if (isUndef(data)) {
+      if (isString(channel)) {
+        delete this._data[channel];
+      }
+      else if (isDef(channel)) {
+        for (const key of Object.keys(this._data)) {
+          this._data[key] = this._data[key].filter((item) => item !== channel);
+        }
+      }
+    }
+    else if (isDef(channel) && isDef(data)) {
+      const key = channel as string;
+
+      if (this._data[key]) {
+        this._data[key] = this._data[key].filter((item) => item !== data);
+      }
+    }
+  }
+
+  clear() {
+    this._data = {};
+  }
+
+  forEach(cb: (item: T, channel: string, index: number) => any) {
+    for (const key of Object.keys(this._data)) {
+      for (let i = 0; i < this._data[key].length; i++) {
+        cb(this._data[key][i], key, i);
+      }
+    }
+  }
+
+  forEachInChannel(channel: string, cb: (item: T, index: number) => any) {
+    (this._data[channel] ?? []).forEach(cb);
+  }
+}
+
 /** 频道订阅者 */
 export class ChannelSubject {
   /** 事件数据 */
-  private _events: Record<string, EventHandler[]> = {};
+  private _data = new ChannelData<EventHandler>();
 
   /** 注册观测器 */
   observe(name: string, ev: EventHandler) {
-    const { _events: events } = this;
-
-    if (!events[name]) {
-      events[name] = [];
-    }
-
-    events[name].push(ev);
+    this._data.push(name, ev);
 
     /** 返回取消观测器方法 */
-    return function unObserve() {
-      events[name] = events[name].filter((cb) => cb !== ev);
+    return () => {
+      this._data.remove(name, ev);
     };
   }
 
@@ -39,42 +101,19 @@ export class ChannelSubject {
   unObserve(name: string, ev: EventHandler): void;
 
   unObserve(name?: string | EventHandler, ev?: EventHandler) {
-    // 没有参数输入
     if (!name) {
-      this._events = {};
+      this._data.clear();
     }
-    // 只输入一个参数
-    else if (!ev) {
-      if (typeof name === 'string') {
-        if (this._events[name]) {
-          this._events[name] = [];
-        }
-      }
-      else if (typeof name === 'function') {
-        Object.keys(this._events).forEach((key) => {
-          this._events[key] = this._events[key].filter((cb) => cb !== ev);
-        });
-      }
-    }
-    // 输入两个参数
-    else if (name && ev) {
-      const key = name as string;
-
-      if (this._events[key]) {
-        this._events[key] = this._events[key].filter((cb) => cb !== ev);
-      }
+    else {
+      this._data.remove(name as string, ev as EventHandler);
     }
   }
 
   /** 发布变化 */
   notify(name: string, ...payloads: any[]) {
-    const { _events: events } = this;
-
-    if (!events[name]) {
-      return;
-    }
-
-    events[name].forEach((cb) => cb(...payloads));
+    this._data.forEachInChannel(name, (cb) => {
+      cb(...payloads);
+    });
   }
 }
 

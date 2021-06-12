@@ -1,188 +1,229 @@
 import test from 'ava';
+import sinon from 'sinon';
 
-import { Subject, Watcher } from 'src';
+import { ChannelData, Subject, Watcher, delay } from 'src';
 
-test('pass', ({ pass }) => {
-  pass();
+test('channel data normal', ({ is }) => {
+  const data = new ChannelData<number>();
+
+  data.push('a', 1);
+  data.push('b', 2);
+  data.push('a', 3);
+  data.push('b', 4);
+
+  is(data.pop('c'), undefined);
+
+  is(data.pop('a'), 3);
+  is(data.pop('a'), 1);
+  is(data.pop('b'), 4);
+  is(data.pop('b'), 2);
+  is(data.pop('a'), undefined);
+  is(data.pop('b'), undefined);
 });
 
-// test('subject observe', () => {
-//   const sub = new Subject<number>();
-//   const cb1 = jest.fn(() => void 0);
-//   const cb2 = jest.fn(() => void 0);
-//   const un1 = sub.observe(cb1);
+test('channel data clear', ({ is }) => {
+  const data = new ChannelData<number>();
 
-//   sub.notify(0, 1);
+  data.push('a', 1);
+  data.push('b', 2);
+  data.push('a', 3);
+  data.push('b', 4);
+  data.clear()
 
-//   const un2 = sub.observe(cb2);
+  is(data.pop('a'), undefined);
+});
 
-//   sub.notify(2, 3);
+test('channel data remove', ({ is }) => {
+  const data = new ChannelData<number>();
 
-//   un1();
+  data.push('a', 1);
+  data.push('b', 2);
+  data.push('a', 3);
+  data.push('b', 4);
+  data.push('a', 5);
+  data.push('b', 6);
 
-//   sub.notify(4, 5);
+  data.remove(5);
+  data.remove('b');
 
-//   un2();
+  is(data.pop('b'), undefined);
+  is(data.pop('a'), 3);
+});
 
-//   sub.notify(6, 7);
+test('subject observe', ({ deepEqual }) => {
+  const sub = new Subject<number>();
+  const cb1 = sinon.spy(() => void 0);
+  const cb2 = sinon.spy(() => void 0);
+  const un1 = sub.observe(cb1);
 
-//   expect(cb1.mock.calls[0]).toEqual([0, 1]);
-//   expect(cb1.mock.calls[1]).toEqual([2, 3]);
+  sub.notify(0, 1);
 
-//   expect(cb2.mock.calls[0]).toEqual([2, 3]);
-//   expect(cb2.mock.calls[1]).toEqual([4, 5]);
-// });
+  const un2 = sub.observe(cb2);
 
-// test('subject unObserve', () => {
-//   const sub = new Subject<number>();
-//   const cb1 = jest.fn(() => void 0);
-//   const cb2 = jest.fn(() => void 0);
-//   const cb3 = jest.fn(() => void 0);
-//   const cb4 = jest.fn(() => void 0);
+  sub.notify(2, 3);
 
-//   sub.observe(cb1);
-//   sub.observe(cb2);
-//   sub.observe(cb3);
-//   sub.observe(cb4);
+  un1();
 
-//   sub.notify(0, 1);
-//   sub.unObserve(cb3);
-//   sub.notify(2, 3);
-//   sub.unObserve();
-//   sub.notify(4, 5);
+  sub.notify(4, 5);
 
-//   expect(cb1.mock.calls.length).toBe(2);
-//   expect(cb2.mock.calls.length).toBe(2);
-//   expect(cb3.mock.calls.length).toBe(1);
-//   expect(cb4.mock.calls.length).toBe(2);
-// });
+  un2();
 
-// test('Watcher watch data', () => {
-//   const watcher = new Watcher(0);
-//   const cb = jest.fn(() => void 0);
+  sub.notify(6, 7);
 
-//   watcher.observe(cb);
+  deepEqual(cb1.args, [[0, 1], [2, 3]]);
+  deepEqual(cb2.args, [[2, 3], [4, 5]]);
+});
 
-//   watcher.data = 2;
-//   watcher.data = 2;
-//   watcher.data = 10;
-//   watcher.data = 10;
+test('subject unObserve', ({ is }) => {
+  const sub = new Subject<number>();
+  const cb1 = sinon.spy(() => void 0);
+  const cb2 = sinon.spy(() => void 0);
+  const cb3 = sinon.spy(() => void 0);
+  const cb4 = sinon.spy(() => void 0);
 
-//   expect(watcher.data).toBe(10);
-//   expect(cb.mock.calls).toEqual([
-//     [2, 0],
-//     [10, 2],
-//   ]);
-// });
+  sub.observe(cb1);
+  sub.observe(cb2);
+  sub.observe(cb3);
+  sub.observe(cb4);
 
-// test('Watcher observe immediately', async () => {
-//   const watcher = new Watcher(123);
-//   const fn1 = jest.fn(() => void 0);
-//   const fn2 = jest.fn(() => void 0);
+  sub.notify(0, 1);
+  sub.unObserve(cb3);
+  sub.notify(2, 3);
+  sub.unObserve();
+  sub.notify(4, 5);
 
-//   watcher.observe(fn1);
-//   watcher.observe(fn2, true);
+  is(cb1.callCount, 2);
+  is(cb2.callCount, 2);
+  is(cb3.callCount, 1);
+  is(cb4.callCount, 2);
+});
 
-//   expect(fn1.mock.calls.length).toBe(0);
-//   expect(fn2.mock.calls.length).toBe(1);
-// });
+test('Watcher watch data', ({ is, deepEqual }) => {
+  const watcher = new Watcher(0);
+  const cb = sinon.spy(() => void 0);
 
-// test('watch once Watcher', async () => {
-//   const watcher = new Watcher(123);
-//   const fn1 = jest.fn(() => void 0);
-//   const fn2 = jest.fn(() => void 0);
-//   const fn3 = jest.fn(() => void 0);
+  watcher.observe(cb);
 
-//   watcher.once().then(fn1);
-//   watcher.once(568).then(fn2);
-//   watcher.once((val) => val * 2 === 888).then(fn3);
+  watcher.setData(2);
+  watcher.setData(2);
+  watcher.setData(10);
+  watcher.setData(10);
 
-//   setTimeout(() => (watcher.data = 10), 100);
+  is(watcher.data, 10);
+  deepEqual(cb.args, [
+    [2, 0],
+    [10, 2],
+  ]);
+});
 
-//   await delay(120);
+test('Watcher observe immediately', async ({ is }) => {
+  const watcher = new Watcher(123);
+  const fn1 = sinon.spy(() => void 0);
+  const fn2 = sinon.spy(() => void 0);
 
-//   expect(fn1).toBeCalledWith(10);
-//   expect(fn2).not.toBeCalled();
-//   expect(fn3).not.toBeCalled();
+  watcher.observe(fn1);
+  watcher.observe(fn2, true);
 
-//   setTimeout(() => (watcher.data = 444), 100);
+  is(fn1.callCount, 0);
+  is(fn2.callCount, 1);
+});
 
-//   await delay(120);
+test('watch once Watcher', async ({ deepEqual, true: isTrue }) => {
+  const watcher = new Watcher(123);
+  const fn1 = sinon.spy(() => void 0);
+  const fn2 = sinon.spy(() => void 0);
+  const fn3 = sinon.spy(() => void 0);
 
-//   expect(fn1.mock.calls.length).toBe(1);
-//   expect(fn2).not.toBeCalled();
-//   expect(fn3).toBeCalledWith(444);
+  watcher.once().then(fn1);
+  watcher.once(568).then(fn2);
+  watcher.once((val) => val * 2 === 888).then(fn3);
 
-//   setTimeout(() => (watcher.data = 568), 100);
+  setTimeout(() => void watcher.setData(10), 50);
 
-//   await delay(120);
+  await delay(80);
 
-//   expect(fn1.mock.calls.length).toBe(1);
-//   expect(fn2.mock.calls.length).toBe(1);
-//   expect(fn2).toBeCalledWith(568);
-// });
+  deepEqual(fn1.args, [[10]]);
+  isTrue(fn2.notCalled);
+  isTrue(fn3.notCalled);
 
-// test('Watcher computed Watcher', () => {
-//   const watcher = new Watcher(0);
-//   const computed = watcher.computed((val) => val * 2);
-//   const cb = jest.fn(() => void 0);
+  setTimeout(() => void watcher.setData(444), 50);
 
-//   computed.observe(cb);
+  await delay(80);
 
-//   watcher.data = 2;
-//   expect(computed.data).toBe(4);
+  deepEqual(fn1.args, [[10]]);
+  isTrue(fn2.notCalled);
+  deepEqual(fn3.args, [[444]]);
 
-//   watcher.data = 3;
-//   expect(computed.data).toBe(6);
+  setTimeout(() => void watcher.setData(568), 50);
 
-//   watcher.data = 10;
-//   watcher.data = 10;
-//   expect(computed.data).toBe(20);
+  await delay(80);
 
-//   expect(cb.mock.calls).toEqual([
-//     [4, 0],
-//     [6, 4],
-//     [20, 6],
-//   ]);
-// });
+  deepEqual(fn1.args, [[10]]);
+  deepEqual(fn2.args, [[568]]);
+  deepEqual(fn3.args, [[444]]);
+});
 
-// test('list Watchers computed Watchers', () => {
-//   const wa1 = new Watcher(1);
-//   const wa2 = new Watcher(2);
-//   const wa3 = new Watcher(3);
+test('Watcher computed Watcher', ({ is, deepEqual }) => {
+  const watcher = new Watcher(0);
+  const computed = watcher.computed((val) => val * 2);
+  const cb = sinon.spy(() => void 0);
 
-//   const [com1, com2] = Watcher.computed([wa1, wa2, wa3] as const, (val1, val2, val3) => {
-//     return [val1 + val2, val2 + val3] as const;
-//   });
+  computed.observe(cb);
 
-//   expect(com1.data).toBe(3);
-//   expect(com2.data).toBe(5);
+  watcher.setData(2);
+  is(computed.data, 4);
 
-//   const cb1 = jest.fn(() => void 0);
-//   const cb2 = jest.fn(() => void 0);
+  watcher.setData(3);
+  is(computed.data, 6);
 
-//   com1.observe(cb1);
-//   com2.observe(cb2);
+  watcher.setData(10);
+  watcher.setData(10);
+  is(computed.data, 20);
 
-//   wa1.data = 20;
-//   expect(com1.data).toBe(22);
-//   expect(com2.data).toBe(5);
+  deepEqual(cb.args, [
+    [4, 0],
+    [6, 4],
+    [20, 6],
+  ]);
+});
 
-//   wa2.data = 78;
-//   expect(com1.data).toBe(98);
-//   expect(com2.data).toBe(81);
+test('list Watchers computed Watchers', ({ is, deepEqual }) => {
+  const wa1 = new Watcher(1);
+  const wa2 = new Watcher(2);
+  const wa3 = new Watcher(3);
 
-//   wa3.data = 100;
-//   expect(com1.data).toBe(98);
-//   expect(com2.data).toBe(178);
+  const [com1, com2] = Watcher.computed([wa1, wa2, wa3] as const, (val1, val2, val3) => {
+    return [val1 + val2, val2 + val3] as const;
+  });
 
-//   expect(cb1.mock.calls).toEqual([
-//     [22, 3],
-//     [98, 22],
-//   ]);
+  is(com1.data, 3);
+  is(com2.data, 5);
 
-//   expect(cb2.mock.calls).toEqual([
-//     [81, 5],
-//     [178, 81],
-//   ]);
-// });
+  const cb1 = sinon.spy(() => void 0);
+  const cb2 = sinon.spy(() => void 0);
+
+  com1.observe(cb1);
+  com2.observe(cb2);
+
+  wa1.setData(20);
+  is(com1.data, 22);
+  is(com2.data, 5);
+
+  wa2.setData(78);
+  is(com1.data, 98);
+  is(com2.data, 81);
+
+  wa3.setData(100);
+  is(com1.data, 98);
+  is(com2.data, 178);
+
+  deepEqual(cb1.args, [
+    [22, 3],
+    [98, 22],
+  ]);
+
+  deepEqual(cb2.args, [
+    [81, 5],
+    [178, 81],
+  ]);
+});
