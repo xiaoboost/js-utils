@@ -19,3 +19,7 @@ export interface DeepReadonlyArray<T> extends ReadonlyArray<DeepReadonly<T>> {}
 export type DeepReadonlyObject<T> = {
   readonly [P in keyof T]: DeepReadonly<T[P]>;
 };
+
+export type ConstructorParameters<T> = T extends { new (...args: infer R): any }
+  ? R
+  : never;
