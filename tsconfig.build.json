@@ -1,6 +1,6 @@
 {
   "extends": "./tsconfig.json",
-  "include": ["src"],
+  "include": ["src", "typings"],
   "exclude": ["node_modules", "tests"],
   "compilerOptions": {
     "target": "ES2015",
