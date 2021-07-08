@@ -5,6 +5,12 @@ const enum StorageType {
 
 const timeSplit = '/*time-limit*/';
 
+function requestIdleCallback(cb: () => any) {
+  window.requestIdleCallback
+    ? window.requestIdleCallback(cb)
+    : setTimeout(cb, 0);
+}
+
 class StorageWrapper {
   /**
    * 时间限制
@@ -80,15 +86,19 @@ class StorageWrapper {
   }
 
   set(key: string, value: any) {
-    const str = this.hasLimit
-      ? `${JSON.stringify(value)}${timeSplit}${this.limitTime}`
-      : JSON.stringify(value);
+    requestIdleCallback(() => {
+      const str = this.hasLimit
+        ? `${JSON.stringify(value)}${timeSplit}${this.limitTime}`
+        : JSON.stringify(value);
 
-    this.storage.setItem(key, str);
+      this.storage.setItem(key, str);
+    });
   }
 
   remove(key: string) {
-    this.storage.removeItem(key);
+    requestIdleCallback(() => {
+      this.storage.removeItem(key);
+    });
   }
 
   exist(key: string) {
@@ -96,16 +106,18 @@ class StorageWrapper {
   }
 
   clear(exclude: string[] = []) {
-    // 保存临时变量
-    const data = exclude.map((key) => ({
-      key,
-      value: this.get(key),
-    }));
+    requestIdleCallback(() => {
+      // 保存临时变量
+      const data = exclude.map((key) => ({
+        key,
+        value: this.get(key),
+      }));
 
-    // 清除所有缓存
-    this.storage.clear();
-    // 临时值存入缓存
-    data.forEach(({ key, value }) => this.set(key, value));
+      // 清除所有缓存
+      this.storage.clear();
+      // 临时值存入缓存
+      data.forEach(({ key, value }) => this.set(key, value));
+    });
   }
 }
 

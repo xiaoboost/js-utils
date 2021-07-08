@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 enum PromiseStatus {
   Pending,
@@ -15,9 +15,11 @@ enum PromiseStatus {
 export function usePromiseState(promise: Promise<any>) {
   const [state, setState] = useState(PromiseStatus.Pending);
 
-  promise
-    .then(() => setState(PromiseStatus.Fulfilled))
-    .catch(() => setState(PromiseStatus.Rejected));
+  useEffect(() => {
+    promise
+      .then(() => setState(PromiseStatus.Fulfilled))
+      .catch(() => setState(PromiseStatus.Rejected));
+  }, []);
 
   return [state === PromiseStatus.Pending, state] as const;
 }

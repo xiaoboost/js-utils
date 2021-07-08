@@ -26,6 +26,6 @@
     "lib": ["ESNext", "dom"],
     "baseUrl": "."
   },
-  "include": ["src", "tests", "build"],
+  "include": ["src", "tests", "build", "typings"],
   "exclude": ["node_modules", "dist"]
 }

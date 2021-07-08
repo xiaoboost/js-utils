@@ -1,13 +1,8 @@
-import { useCallback, useState } from 'react';
+import { useReducer } from 'react';
 
-export function useForceUpdate() {
-  const [, dispatch] = useState(Object.create(null));
+const updateReducer = (num: number): number => (num + 1) % 1000000;
 
-  // 设置新参数，强制更新
-  const memoizedDispatch = useCallback(
-    () => dispatch(Object.create(null)),
-    [dispatch],
-  );
-
-  return memoizedDispatch;
+export function useForceUpdate(): () => void {
+  const [, update] = useReducer(updateReducer, 0);
+  return update;
 }
