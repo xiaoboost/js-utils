@@ -1,6 +1,8 @@
 export type AnyObject<T = any> = Record<string, T>;
 export type AnyFunction = (...args: any[]) => any;
-export type EmptyObject = Record<string, never>;
+export type EmptyObjectStrict = Record<string, never>;
+// eslint-disable-next-line @typescript-eslint/ban-types
+export type EmptyObject = {};
 export type PartPartial<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 export type Writeable<T extends AnyObject> = { -readonly [P in keyof T]: T[P] };
 export type GetArrayItem<T> = T extends Array<infer R> ? R : never;
