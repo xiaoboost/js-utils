@@ -26,7 +26,7 @@ utils.isString('123');
 const web = require('@xiao-ai/utils/web');
 const use = require('@xiao-ai/utils/use');
 
-web.addClassName('test-1');
+web.addClassName(el, 'test-1');
 use.useForceUpdate();
 ```
 
@@ -51,6 +51,7 @@ module.exports = {
     alias: {
       '@xiao-ai/utils/web': './node_modules/@xiao-ai/utils/dist/esm/web/index.js',
       '@xiao-ai/utils/use': './node_modules/@xiao-ai/utils/dist/esm/use/index.js',
+      '@xiao-ai/utils/node': './node_modules/@xiao-ai/utils/dist/esm/node/index.js',
     },
   },
 }
