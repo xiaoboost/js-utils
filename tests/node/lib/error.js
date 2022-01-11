@@ -1,1 +1,1 @@
-const abc;
+let location + 1

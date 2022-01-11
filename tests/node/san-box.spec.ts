@@ -96,10 +96,15 @@ test('code error', ({ deepEqual }) => {
   deepEqual(result, {
     output: {},
     error: {
-      filePath: path.join(__dirname, filename),
-      lineNumber: 2,
       message: 'Missing initializer in const declaration',
       stack: '',
+      location: {
+        filePath: path.join(__dirname, filename),
+        line: 2,
+        column: 7,
+        length: 2,
+        lineText: 'const ab',
+      },
     },
   });
 });
@@ -117,10 +122,15 @@ test('code error in require file', ({ deepEqual }) => {
   deepEqual(result, {
     output: {},
     error: {
-      filePath: path.join(__dirname, './lib/error.js'),
-      lineNumber: 1,
-      message: 'Missing initializer in const declaration',
+      message: 'Unexpected token \'+\'',
       stack: '',
+      location: {
+        filePath: path.join(__dirname, './lib/error.js'),
+        line: 1,
+        column: 14,
+        length: 1,
+        lineText: 'let location + 1',
+      },
     },
   });
 });

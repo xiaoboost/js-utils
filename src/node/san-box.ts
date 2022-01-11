@@ -35,18 +35,29 @@ interface RunResult<T> {
 }
 
 interface RunError {
-  /** 发生错误的文件路径 */
-  filePath: string;
-  /**
-   * 错误发生在第几行
-   *  - 首行为`1`
-   *  - 没有判断出错误则显示为`0`
-   */
-  lineNumber: number;
   /** 原始错误信息 */
   message: string;
   /** 原始错误堆栈信息 */
   stack: string;
+  /** 错误位置信息 */
+  location?: {
+    /** 发生错误的文件路径 */
+    filePath: string;
+    /**
+     * 行号
+     *  - 首行为`1`
+     */
+    line: number;
+    /**
+     * 列号
+     *  - 首列为`1`
+     */
+    column?: number;
+    /** 错误文本的长度 */
+    length?: number;
+    /** 错误行字符串 */
+    lineText?: string;
+  };
 }
 
 /** 解析错误信息 */
@@ -54,21 +65,38 @@ function getErrorMessage(e: Error): RunError {
   const err: RunError = {
     message: e.message,
     stack: e.stack ?? '',
-    filePath: '',
-    lineNumber: -1,
   };
 
-  const firstLine = err.stack.split('\n')[0];
+  // 前三行分别是错误文件路径，错误行文本，错误列文本
+  const [fileText, lineText, errorText] = err.stack.split('\n');
 
-  if (!firstLine) {
+  if (!fileText) {
     return err;
   }
 
-  const lineNumberMatch = firstLine.match(/:\d+$/);
+  const lineNumberMatch = fileText.match(/:\d+$/);
 
   if (lineNumberMatch) {
-    err.filePath = firstLine.substring(0, lineNumberMatch.index);
-    err.lineNumber = Number.parseInt(lineNumberMatch[0].substring(1));
+    err.location = {
+      filePath: fileText.substring(0, lineNumberMatch.index),
+      line: Number.parseInt(lineNumberMatch[0].substring(1)),
+    };
+  }
+  else {
+    return err;
+  }
+
+  if (lineText) {
+    err.location.lineText = lineText;
+  }
+
+  if (errorText) {
+    const columnMatch = errorText.match(/\^+$/);
+
+    if (columnMatch) {
+      err.location.column = (columnMatch.index ?? 0) + 1;
+      err.location.length = columnMatch[0].length;
+    }
   }
 
   return err;
