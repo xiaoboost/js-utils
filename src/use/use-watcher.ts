@@ -1,4 +1,4 @@
-import { Watcher } from '../subject';
+import { Watcher } from '../subscriber';
 import { AnyObject, GetArrayItem } from '../types';
 import { BaseType, isBaseType } from '../assert';
 import { useForceUpdate } from './use-force-update';

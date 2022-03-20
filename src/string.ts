@@ -1,6 +1,6 @@
 import { isString, isObject } from './assert';
 
-export type ClassObject = Record<string, boolean>;
+export type ClassObject = Record<string, boolean | undefined>;
 export type ClassInput = string | undefined | ClassObject;
 
 /** 解析对象 class */

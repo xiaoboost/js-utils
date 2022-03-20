@@ -1,7 +1,7 @@
 import test from 'ava';
 import sinon from 'sinon';
 
-import { ChannelData, Subject, Watcher, delay } from 'src';
+import { ChannelData, Subscriber, Watcher, delay } from 'src';
 
 test('channel data normal', ({ is }) => {
   const data = new ChannelData<number>();
@@ -50,8 +50,8 @@ test('channel data remove', ({ is }) => {
   is(data.pop('a'), 3);
 });
 
-test('subject observe', ({ deepEqual }) => {
-  const sub = new Subject<number>();
+test('Subscriber observe', ({ deepEqual }) => {
+  const sub = new Subscriber<number>();
   const cb1 = sinon.spy(() => void 0);
   const cb2 = sinon.spy(() => void 0);
   const un1 = sub.observe(cb1);
@@ -74,8 +74,8 @@ test('subject observe', ({ deepEqual }) => {
   deepEqual(cb2.args, [[2, 3], [4, 5]]);
 });
 
-test('subject unObserve', ({ is }) => {
-  const sub = new Subject<number>();
+test('Subscriber unObserve', ({ is }) => {
+  const sub = new Subscriber<number>();
   const cb1 = sinon.spy(() => void 0);
   const cb2 = sinon.spy(() => void 0);
   const cb3 = sinon.spy(() => void 0);

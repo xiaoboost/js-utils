@@ -1,18 +1,23 @@
-import { isFunc, isString, isUndef, isDef } from './assert';
-import { AnyObject } from './types';
+import { isFunc, isString, isUndef, isDef, isNumber } from "./assert";
+import { AnyObject } from "./types";
 
+type ChannelName = string | number;
 type EventHandler<T = any> = (...payloads: T[]) => any;
 type ReadonlyObject<T> = T extends AnyObject ? Readonly<T> : T;
 
 type GetWatcherType<W> = W extends Watcher<infer R> ? R : never;
-type GetWatcherListType<W extends readonly Watcher<any>[]> = { [K in keyof W]: GetWatcherType<W[K]> };
-type CreateWatcherList<V extends readonly any[]> = { [K in keyof V]: Watcher<V[K]> };
+type GetWatcherListType<W extends readonly Watcher<any>[]> = {
+  [K in keyof W]: GetWatcherType<W[K]>;
+};
+type CreateWatcherList<V extends readonly any[]> = {
+  [K in keyof V]: Watcher<V[K]>;
+};
 
 /** 分类数据储存 */
 export class ChannelData<T = any> {
-  private _data: Record<string, T[]> = {};
+  private _data: Record<ChannelName, T[]> = {};
 
-  push(channel: string, data: T) {
+  push(channel: ChannelName, data: T) {
     if (!this._data[channel]) {
       this._data[channel] = [];
     }
@@ -20,7 +25,7 @@ export class ChannelData<T = any> {
     this._data[channel].push(data);
   }
 
-  pop(channel: string) {
+  pop(channel: ChannelName) {
     const stack = this._data[channel];
 
     if (!stack) {
@@ -29,33 +34,42 @@ export class ChannelData<T = any> {
 
     const result = stack.pop();
 
-    if (stack.length === 0){
+    if (stack.length === 0) {
       delete this._data[channel];
     }
 
     return result;
   }
 
+  /**
+   * 移除单独的值
+   *   - 此值没有和频道名称重叠时，才会检索值
+   */
   remove(data: T): void;
-  remove(channel: string): void;
-  remove(channel: string, data: T): void;
-  remove(channel: string | T, data?: T) {
-    if (isUndef(data)) {
-      if (isString(channel)) {
-        delete this._data[channel];
+  /** 移除某个频道的全部值 */
+  remove(channel: ChannelName): void;
+  remove(channel: ChannelName, data: T): void;
+  remove(channel: ChannelName | T, data?: T) {
+    const removeVal = (name: ChannelName, value: T) => {
+      if (this._data[name]) {
+        this._data[name] = this._data[name].filter((item) => item !== value);
       }
-      else if (isDef(channel)) {
-        for (const key of Object.keys(this._data)) {
-          this._data[key] = this._data[key].filter((item) => item !== channel);
-        }
+    };
+
+    if (isUndef(data)) {
+      // 是字符串或者数字时，先检索频道名
+      if ((isString(channel) || isNumber(channel)) && this._data[channel]) {
+        delete this._data[channel];
+        return;
+      }
+
+      // 否则检索所有值
+      for (const key of Object.keys(this._data)) {
+        removeVal(key, channel as any);
       }
     }
     else if (isDef(channel) && isDef(data)) {
-      const key = channel as string;
-
-      if (this._data[key]) {
-        this._data[key] = this._data[key].filter((item) => item !== data);
-      }
+      removeVal(channel, data);
     }
   }
 
@@ -63,7 +77,7 @@ export class ChannelData<T = any> {
     this._data = {};
   }
 
-  forEach(cb: (item: T, channel: string, index: number) => any) {
+  forEach(cb: (item: T, channel: ChannelName, index: number) => any) {
     for (const key of Object.keys(this._data)) {
       for (let i = 0; i < this._data[key].length; i++) {
         cb(this._data[key][i], key, i);
@@ -71,18 +85,18 @@ export class ChannelData<T = any> {
     }
   }
 
-  forEachInChannel(channel: string, cb: (item: T, index: number) => any) {
+  forEachInChannel(channel: ChannelName, cb: (item: T, index: number) => any) {
     (this._data[channel] ?? []).forEach(cb);
   }
 }
 
 /** 频道订阅者 */
-export class ChannelSubject {
+export class ChannelSubscriber {
   /** 事件数据 */
   private _data = new ChannelData<EventHandler>();
 
   /** 注册观测器 */
-  observe(name: string, ev: EventHandler) {
+  observe(name: ChannelName, ev: EventHandler) {
     this._data.push(name, ev);
 
     /** 返回取消观测器方法 */
@@ -96,11 +110,11 @@ export class ChannelSubject {
   /** 取消此回调的观测器 */
   unObserve(ev: EventHandler): void;
   /** 取消此类全部观测器 */
-  unObserve(name: string): void;
+  unObserve(name: ChannelName): void;
   /** 取消此类中的某个回调观测器 */
-  unObserve(name: string, ev: EventHandler): void;
+  unObserve(name: ChannelName, ev: EventHandler): void;
 
-  unObserve(name?: string | EventHandler, ev?: EventHandler) {
+  unObserve(name?: ChannelName | EventHandler, ev?: EventHandler) {
     if (!name) {
       this._data.clear();
     }
@@ -110,7 +124,7 @@ export class ChannelSubject {
   }
 
   /** 发布变化 */
-  notify(name: string, ...payloads: any[]) {
+  notify(name: ChannelName, ...payloads: any[]) {
     this._data.forEachInChannel(name, (cb) => {
       cb(...payloads);
     });
@@ -118,7 +132,7 @@ export class ChannelSubject {
 }
 
 /** 订阅者 */
-export class Subject<T> {
+export class Subscriber<T> {
   /** 事件数据 */
   private _events: EventHandler<T>[] = [];
 
@@ -151,13 +165,16 @@ export class Subject<T> {
 }
 
 /** 监控者 */
-export class Watcher<T> extends Subject<T> {
+export class Watcher<T> extends Subscriber<T> {
   static computed<
     Watchers extends readonly Watcher<any>[],
     Params extends GetWatcherListType<Watchers>,
-    Values extends readonly any[],
-  >(watchers: Watchers, cb: (...args: Params) => Values): CreateWatcherList<Values> {
-    const initVal = cb(...watchers.map(({ _data }) => _data) as any);
+    Values extends readonly any[]
+  >(
+    watchers: Watchers,
+    cb: (...args: Params) => Values
+  ): CreateWatcherList<Values> {
+    const initVal = cb(...(watchers.map(({ _data }) => _data) as any));
     const newWatchers = initVal.map((init) => new Watcher(init));
 
     // 更新所有观测器的回调
@@ -214,11 +231,12 @@ export class Watcher<T> extends Subject<T> {
 
   /** 监听一次变化 */
   once(val?: T | ((item: T) => boolean)) {
-    const func = arguments.length === 0
-      ? () => true
-      : isFunc(val)
-        ? val
-        : (item: T) => item === val;
+    const func =
+      arguments.length === 0
+        ? () => true
+        : isFunc(val)
+          ? val
+          : (item: T) => item === val;
 
     return new Promise<ReadonlyObject<T>>((resolve) => {
       const callback = (item: T) => {
