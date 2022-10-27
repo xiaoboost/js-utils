@@ -1,0 +1,10 @@
+{
+  "extends": "@xiao-ai/tsconfig",
+  "compilerOptions": {
+    "module": "CommonJS",
+    "lib": ["ESNext", "dom"],
+    "baseUrl": "."
+  },
+  "include": ["src", "tests", "build", "typings"],
+  "exclude": ["node_modules", "dist"]
+}

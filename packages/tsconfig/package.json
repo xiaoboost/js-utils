@@ -1,0 +1,13 @@
+{
+  "name": "@xiao-ai/tsconfig",
+  "description": "TypeScript configuration",
+  "version": "1.0.0",
+  "main": "tsconfig.json",
+  "scripts": {
+    "publish": "pnpm publish --access=public --registry=https://registry.npmjs.org"
+  },
+  "files": [
+    "tsconfig.json",
+    "package.json"
+  ]
+}
