@@ -1,6 +1,6 @@
 {
   "name": "@xiao-ai/utils",
-  "version": "1.6.2",
+  "version": "1.6.3",
   "description": "自己用的 JavaScript 工具函数集合",
   "author": "xiaoboost",
   "license": "MIT",
@@ -60,8 +60,8 @@
     "@types/sinon": "^10.0.6",
     "@typescript-eslint/eslint-plugin": "^5.9.1",
     "@typescript-eslint/parser": "^5.9.1",
-    "@xiao-ai/eslint-config": "workspace:*",
-    "@xiao-ai/tsconfig": "workspace:*",
+    "@xiao-ai/eslint-config": "workspace:^",
+    "@xiao-ai/tsconfig": "workspace:^",
     "ava": "^3.15.0",
     "eslint": "^8.23.1",
     "react": "^17.0.2",
