@@ -3,7 +3,8 @@ import path from 'path';
 
 import { createRequire } from 'module';
 
-interface RunScriptOptions {
+/** 运行代码选项 */
+export interface RunScriptOptions {
   /** 当前脚本所在文件夹路径 */
   dirname: string;
   /**
@@ -29,12 +30,12 @@ interface FakeModule {
 }
 
 /** 运行结果 */
-interface RunResult<T> {
+export interface RunResult<T> {
   output: T;
   error?: RunError;
 }
 
-interface RunError {
+export interface RunError {
   /** 原始错误信息 */
   message: string;
   /** 原始错误堆栈信息 */

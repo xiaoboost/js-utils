@@ -1,5 +1,11 @@
 # @xiao-ai/utils
 
+## 1.6.4
+
+fix:
+
+- `src/node/san-box.ts`模块导出若干类型
+
 ## 1.6.3
 
 fix:
