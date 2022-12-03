@@ -35,11 +35,14 @@ export interface RunResult<T> {
   error?: RunError;
 }
 
-export interface RunError {
+/** 运行错误 */
+export class RunError extends Error {
   /** 原始错误信息 */
-  message: string;
+  message = '';
+
   /** 原始错误堆栈信息 */
-  stack: string;
+  stack?: string;
+
   /** 错误位置信息 */
   location?: {
     /** 发生错误的文件路径 */
@@ -59,17 +62,26 @@ export interface RunError {
     /** 错误行字符串 */
     lineText?: string;
   };
+
+  constructor(message: string, stack?: string) {
+    super(message);
+    this.stack = stack;
+  }
 }
 
 /** 解析错误信息 */
 function getErrorMessage(e: Error): RunError {
-  const err: RunError = {
-    message: e.message,
-    stack: e.stack ?? '',
-  };
-
+  const err = new RunError(e.message, e.stack);
   // 前三行分别是错误文件路径，错误行文本，错误列文本
-  const [fileText, lineText, errorText] = err.stack.split('\n');
+  const [fileText, lineText, errorText] = (err.stack ?? '').split('\n');
+
+  if (e.name) {
+    err.name = e.name;
+  }
+
+  if (e.cause) {
+    err.cause = e.cause;
+  }
 
   if (!fileText) {
     return err;

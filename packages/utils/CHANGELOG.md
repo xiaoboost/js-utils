@@ -1,5 +1,11 @@
 # @xiao-ai/utils
 
+## 1.6.5
+
+fix:
+
+- `src/node/san-box.ts`模块中的`RunError`类型改为`Error`的扩展类
+
 ## 1.6.4
 
 fix:

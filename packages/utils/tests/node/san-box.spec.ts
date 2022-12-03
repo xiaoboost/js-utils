@@ -1,6 +1,6 @@
 import test from 'ava';
 import path from 'path';
-import { runScript } from 'src/node';
+import { runScript, RunError } from 'src/node';
 
 test('no error no result', ({ deepEqual }) => {
   const result = runScript(`const a = 1 + 1;`, {
@@ -88,23 +88,23 @@ test('code error', ({ deepEqual }) => {
     dirname: __dirname,
     filename,
   });
+  const runError = new RunError('Missing initializer in const declaration');
 
   // 删除 stack 信息
-  result.error!.stack = '';
+  result.error!.stack = undefined;
+
+  runError.name = 'SyntaxError';
+  runError.location = {
+    filePath: path.join(__dirname, filename),
+    line: 2,
+    column: 7,
+    length: 2,
+    lineText: 'const ab',
+  };
 
   deepEqual(result, {
     output: {},
-    error: {
-      message: 'Missing initializer in const declaration',
-      stack: '',
-      location: {
-        filePath: path.join(__dirname, filename),
-        line: 2,
-        column: 7,
-        length: 2,
-        lineText: 'const ab',
-      },
-    },
+    error: runError,
   });
 });
 
@@ -114,22 +114,22 @@ test('code error in require file', ({ deepEqual }) => {
     dirname: __dirname,
     filename,
   });
+  const runError = new RunError("Unexpected token '+'");
 
   // 删除 stack 信息
-  result.error!.stack = '';
+  result.error!.stack = undefined;
+
+  runError.name = 'SyntaxError';
+  runError.location = {
+    filePath: path.join(__dirname, './lib/error.js'),
+    line: 1,
+    column: 14,
+    length: 1,
+    lineText: 'let location + 1',
+  };
 
   deepEqual(result, {
     output: {},
-    error: {
-      message: "Unexpected token '+'",
-      stack: '',
-      location: {
-        filePath: path.join(__dirname, './lib/error.js'),
-        line: 1,
-        column: 14,
-        length: 1,
-        lineText: 'let location + 1',
-      },
-    },
+    error: runError,
   });
 });
