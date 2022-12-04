@@ -1,5 +1,11 @@
 # @xiao-ai/utils
 
+## 1.6.6
+
+fix:
+
+- 修复`src/node/san-box.ts`模块中的`RunError`类初始化错误
+
 ## 1.6.5
 
 fix:

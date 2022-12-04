@@ -37,12 +37,6 @@ export interface RunResult<T> {
 
 /** 运行错误 */
 export class RunError extends Error {
-  /** 原始错误信息 */
-  message = '';
-
-  /** 原始错误堆栈信息 */
-  stack?: string;
-
   /** 错误位置信息 */
   location?: {
     /** 发生错误的文件路径 */
