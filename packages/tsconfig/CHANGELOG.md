@@ -1,5 +1,11 @@
 # @xiao-ai/tsconfig
 
+## 1.0.2
+
+fix:
+
+- 移除`suppressImplicitAnyIndexErrors`选项，因为 ts 5.0 时此项被弃用
+
 ## 1.0.1
 
 fix:
