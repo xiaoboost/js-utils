@@ -24,7 +24,6 @@
     "listFiles": false,
     "removeComments": false,
     "skipLibCheck": true,
-    "suppressImplicitAnyIndexErrors": true,
     "allowJs": true,
     "lib": ["ESNext"]
   }
