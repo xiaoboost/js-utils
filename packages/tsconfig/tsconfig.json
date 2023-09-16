@@ -7,7 +7,7 @@
     "declarationMap": true,
     "moduleResolution": "NodeNext",
     "target": "ESNext",
-    "module": "ESNext",
+    "module": "NodeNext",
     "jsx": "react",
     "preserveWatchOutput": true,
     "allowSyntheticDefaultImports": true,

@@ -1,5 +1,11 @@
 # @xiao-ai/tsconfig
 
+## 1.0.4
+
+fix:
+
+- 兼容 moduleResolution 的错误，module 选项改为 NodeNext
+
 ## 1.0.3
 
 fix:
