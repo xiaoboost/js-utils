@@ -42,5 +42,21 @@ module.exports = {
      * ref: https://github.com/typescript-eslint/typescript-eslint/blob/master/packages/eslint-plugin/docs/rules/no-use-before-define.md
      */
     '@typescript-eslint/no-use-before-define': 0,
+    /**
+     * 不允许有未使用的变量
+     * ref: https://typescript-eslint.io/rules/no-unused-vars/
+     */
+    '@typescript-eslint/no-unused-vars': [
+      'error',
+      {
+        args: 'all',
+        argsIgnorePattern: '^_',
+        caughtErrors: 'all',
+        caughtErrorsIgnorePattern: '^_',
+        destructuredArrayIgnorePattern: '^_',
+        varsIgnorePattern: '^_',
+        ignoreRestSiblings: true,
+      },
+    ],
   },
 };
