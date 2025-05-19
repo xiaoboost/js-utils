@@ -132,7 +132,7 @@ export function clone<T>(data: T, check = true): T {
       return prototype.constructor.from(data);
     } else {
       return Object.keys(data as any).reduce((obj, key) => {
-        return (obj[key] = clone(data[key], false)), obj;
+        return ((obj as any)[key] = clone((data as any)[key], false)), obj;
       }, {}) as any;
     }
   }

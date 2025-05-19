@@ -109,6 +109,17 @@ export class ChannelSubscriber {
     };
   }
 
+  /** 观测一次 */
+  once(name: ChannelName, ev?: EventHandler) {
+    return new Promise<unknown>((resolve: (...payloads: any[]) => void) => {
+      const unObserve = this.observe(name, (...payloads) => {
+        ev?.(...payloads);
+        unObserve();
+        resolve(...payloads);
+      });
+    });
+  }
+
   /** 取消全部观测器 */
   unObserve(): void;
 
